@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zyra-postgres
+    environment:
+      POSTGRES_DB: zyra_db
+      POSTGRES_USER: zyra_user
+      POSTGRES_PASSWORD: zyra_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - zyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zyra_user -d zyra_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for Caching and Queues
+  redis:
+    image: redis:7-alpine
+    container_name: zyra-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - zyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zyra-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: zyra_db
+      DB_USER: zyra_user
+      DB_PASSWORD: zyra_password
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_WHATSAPP_NUMBER: ${TWILIO_WHATSAPP_NUMBER}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - zyra-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./zyra-frontend
+      dockerfile: Dockerfile
+    container_name: zyra-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - zyra-network
+    restart: unless-stopped
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: zyra-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - zyra-network
+    restart: unless-stopped
+
+  # Queue Worker for Background Jobs
+  queue-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zyra-queue-worker
+    command: npm run queue:worker
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: zyra_db
+      DB_USER: zyra_user
+      DB_PASSWORD: zyra_password
+      REDIS_URL: redis://redis:6379
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - zyra-network
+    restart: unless-stopped
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: zyra-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - zyra-network
+    restart: unless-stopped
+
+  # Grafana for Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zyra-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - zyra-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  grafana_data:
+
+networks:
+  zyra-network:
+    driver: bridge
