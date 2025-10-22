@@ -1,82 +1,38 @@
-# 🚀 Zyra - AI Automation & Marketing Intelligence Platform
+# Zyra - AI Automation & Marketing Intelligence Platform
 
 > **The future of business automation is here.** Zyra combines cutting-edge AI with intelligent workflow automation to transform how businesses operate in the digital economy (2025-2030).
 
-## 🌟 Overview
+## Overview
 
 Zyra is an advanced AI automation and marketing intelligence system designed for digital wholesalers, retailers, and modern businesses. We combine AI-driven data processing, customer segmentation, smart automation, and adaptive targeting to help businesses sell smarter — not louder.
 
 **Mission**: Make every product reach the right person at the right time — targeting diverse audiences including kids, Gen Alpha, Gen Z youth, millennials, parents, and Gen X across all demographics and interests.
 
-## 🎨 Design Philosophy
-
-**Theme: "Neo-Futuristic Intelligence"** - A sleek, cyber-inspired design that embodies the future of automation and AI.
-
-### Color Palette
-- **Deep Navy**: `#0a0e27` - Primary background
-- **Electric Violet**: `#8b5cf6` - Primary accent and AI elements
-- **Cyan Blue**: `#06b6d4` - Secondary accent and highlights
-- **Glass Effects**: Semi-transparent overlays with backdrop blur
-- **Neon Glows**: Dynamic lighting effects for interactive elements
-
-## 🏗️ Architecture
-
-### Frontend (Next.js 14)
-```
-zyra-frontend/
-├── app/                    # Next.js App Router
-│   ├── page.tsx           # Landing page
-│   ├── layout.tsx         # Root layout
-│   └── api/               # API routes
-├── components/            # React components
-│   ├── ui/                # Reusable UI components
-│   ├── sections/          # Page sections
-│   └── shared/            # Shared components
-├── lib/                   # Utility functions
-├── styles/                # Global styles
-└── public/                # Static assets
-```
-
-### Backend (Node.js + Express)
-```
-backend/
-├── src/
-│   ├── controllers/       # Route controllers
-│   ├── services/          # Business logic
-│   ├── models/            # Data models
-│   ├── middleware/        # Custom middleware
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   └── config/            # Configuration
-├── migrations/            # Database migrations
-├── seeds/                 # Database seeds
-└── docs/                  # Documentation
-```
 
 ## 🚀 Core Capabilities
 
-### 🧠 AI Persona Engine
+###  AI Persona Engine
 - Analyze uploaded customer or sales data
 - Detect purchase patterns, interests, and demographics
 - Create buyer personas (e.g., "Tech-Savvy Parents", "Young Professionals", "Family Shoppers", "Lifestyle Enthusiasts", "Value-Conscious Buyers")
 - Continuously refine personas as new data arrives
 
-### 🎯 Smart Channel Matching
+###  Smart Channel Matching
 - Identify which platform (WhatsApp, Instagram, TikTok, Telegram, Email) best fits each persona
 - Automatically plan distribution schedules for maximum engagement
 - Optimize post formats (image, text, caption tone, emojis) to match target platform
 
-### 🎭 Intent-Based Marketing (Mood AI)
+###  Intent-Based Marketing (Mood AI)
 - Analyze product descriptions + trending keywords
 - Detect emotional tone of current online conversations
 - Suggest or auto-generate promotional messages that resonate with diverse audience preferences and cultural contexts
 
-### 🔮 Predictive Targeting
+###  Predictive Targeting
 - Identify new potential customers based on behavior, location, and interest similarity
 - Recommend who to target next and where
 - Use predictive models to prioritize high-conversion customers
 
-### ✍️ AI Campaign Composer
+###  AI Campaign Composer
 - Generate campaign copy (captions, ads, posts, emails)
 - Adapt language style to match target demographics (youth-friendly, professional, family-oriented, or emotional tone)
 - Create multiple variants for A/B testing
@@ -87,16 +43,16 @@ backend/
 - Visualize engagement, drop-off rates, and conversation quality
 - Suggest follow-up messages or offers to convert leads
 
-### 💰 Dynamic Pricing Advisor
+###  Dynamic Pricing Advisor
 - Analyze product demand, seasonality, and competition
 - Suggest ideal selling prices and discount strategies
 - Generate bundle offers automatically
 
-### 🛡️ Trust & Lead Verification
+###  Trust & Lead Verification
 - Score customers by engagement and purchase behavior
 - Help sellers filter out spam, ghost buyers, and bots
 
-## 🧱 Zyra Interaction Example
+##  Zyra Interaction Example
 
 **User**: "Zyra, post my new sneaker collection to diverse audiences in Nairobi, add 10% profit margin and schedule WhatsApp + Instagram posts for Friday."
 
@@ -109,7 +65,7 @@ backend/
 6. Send tasks to n8n → publish Friday 6PM
 7. Log results + engagement
 
-## 🔁 Zyra's Feedback Loop
+##  Zyra's Feedback Loop
 
 Every time a campaign runs:
 1. Collect performance data (views, clicks, conversions)
@@ -121,9 +77,9 @@ Every time a campaign runs:
 
 Zyra speaks like a modern, confident, helpful AI assistant:
 
-> "Hey 👋 Nelson, your sneaker collection is ready for diverse audiences. I found 4 target segments that will love it — and scheduled a Friday evening release (6PM peak engagement). Ready to boost sales 🚀?"
+> "Hey  Nelson, your sneaker collection is ready for diverse audiences. I found 4 target segments that will love it — and scheduled a Friday evening release (6PM peak engagement). Ready to boost sales 🚀?"
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **Framework**: Next.js 14 with App Router
@@ -156,7 +112,7 @@ Zyra speaks like a modern, confident, helpful AI assistant:
 - **File Storage**: AWS S3/Cloudinary
 - **Monitoring**: Winston logging
 
-## 📦 Installation & Setup
+##  Installation & Setup
 
 ### Prerequisites
 - Node.js 18+ 
@@ -192,7 +148,7 @@ npm run migrate
 npm run seed
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Variables
 
@@ -228,7 +184,7 @@ LANGFLOW_API_URL=http://localhost:7860
 N8N_API_URL=http://localhost:5678
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Frontend (Vercel)
 ```bash
@@ -253,7 +209,7 @@ npm run build
 # Run migrations on production
 ```
 
-## 📚 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 - `POST /api/auth/register` - User registration
@@ -303,7 +259,7 @@ npm run build
 - Error tracking and monitoring
 - Performance metrics collection
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -311,11 +267,11 @@ npm run build
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📄 License
+##  License
 
 MIT License - see LICENSE file for details
 
-## 🆘 Support
+##  Support
 
 - Documentation: [docs.zyra.ai](https://docs.zyra.ai)
 - Community: [Discord](https://discord.gg/zyra)
@@ -323,5 +279,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Built with ❤️ for the future of automation**
 # Zyra-AI
