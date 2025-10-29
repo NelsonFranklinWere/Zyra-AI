@@ -1,6 +1,5 @@
 "use client"
 
-import { Header } from "@/components/shared/header"
 import { Footer } from "@/components/shared/footer"
 import { Dashboard } from "@/components/sections/dashboard"
 import { motion } from "framer-motion"
@@ -44,8 +43,6 @@ const quickActions = [
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-zyra-gradient">
-      <Header />
-      
       <main className="py-8">
         <div className="max-w-7xl mx-auto px-4">
           {/* Page Header */}

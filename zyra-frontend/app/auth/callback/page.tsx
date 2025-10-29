@@ -16,7 +16,7 @@ export default function AuthCallback() {
 
     if (error) {
       console.error('Auth error:', error)
-      router.push('/login?error=auth_failed')
+      router.push('/?error=auth_failed')
       return
     }
 
@@ -31,11 +31,11 @@ export default function AuthCallback() {
         router.push('/dashboard')
       } catch (error) {
         console.error('Error parsing user data:', error)
-        router.push('/login?error=invalid_data')
+        router.push('/?error=invalid_data')
       }
     } else {
-      // No auth data, redirect to login
-      router.push('/login')
+      // No auth data, redirect to home
+      router.push('/')
     }
   }, [searchParams, login, router])
 
@@ -53,3 +53,4 @@ export default function AuthCallback() {
     </div>
   )
 }
+

@@ -37,6 +37,7 @@ interface AuthModalProps {
 type AuthMode = 'login' | 'signup' | 'otp-email' | 'otp-sms'
 
 export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
+  type AuthPayload = { token: string; user: any }
   const [mode, setMode] = useState<AuthMode>(defaultMode)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -65,14 +66,16 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     setIsLoading(true)
     try {
       const result = await apiClient.login(data.email, data.password)
+      const typed = result as { success: boolean; message: string; data?: AuthPayload }
       
-      if (result.success) {
-        apiClient.setToken(result.data.token)
-        login(result.data.token, result.data.user)
+      if (typed.success && typed.data) {
+        const payload = typed.data
+        apiClient.setToken(payload.token)
+        login(payload.token, payload.user)
         toast.success('Login successful!')
         onClose()
       } else {
-        toast.error(result.message)
+        toast.error(typed.message)
       }
     } catch (error) {
       toast.error('Login failed. Please try again.')
@@ -85,17 +88,67 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     setIsLoading(true)
     try {
       const result = await apiClient.register(data)
+      const typed = result as { success: boolean; message: string; data?: Partial<AuthPayload> }
       
-      if (result.success) {
-        setUserEmail(data.email)
-        setUserPhone(data.phoneNumber || '')
-        toast.success('Account created! Please verify your email.')
-        setMode('otp-email')
+      if (typed.success) {
+        // Backend returns accessToken from JWT token pair
+        const token = (typed.data as any)?.accessToken || (typed.data as any)?.token
+        const user = (typed.data as any)?.user
+        
+        if (token && user) {
+          // Complete the login immediately with the returned token
+          apiClient.setToken(token)
+          login(token, user)
+          toast.success('Account created successfully!')
+          onClose()
+        } else if (token) {
+          // If only token is returned, fetch user profile
+          apiClient.setToken(token)
+          try {
+            const profileResult = await apiClient.getProfile()
+            if (profileResult.success && profileResult.data) {
+              const userData = profileResult.data as {
+                id: string
+                email: string
+                firstName: string
+                lastName: string
+                role: string
+                isVerified: boolean
+                phoneVerified?: boolean
+                avatarUrl?: string
+                preferences?: any
+              }
+              login(token, userData)
+              toast.success('Account created successfully!')
+              onClose()
+            } else {
+              // Fallback to OTP verification
+              setUserEmail(data.email)
+              setUserPhone(data.phoneNumber || '')
+              toast.success('Account created! Please verify your email.')
+              setMode('otp-email')
+            }
+          } catch {
+            // If profile fetch fails, proceed with OTP
+            setUserEmail(data.email)
+            setUserPhone(data.phoneNumber || '')
+            toast.success('Account created! Please verify your email.')
+            setMode('otp-email')
+          }
+        } else {
+          // If no token, proceed with OTP verification
+          setUserEmail(data.email)
+          setUserPhone(data.phoneNumber || '')
+          toast.success('Account created! Please verify your email.')
+          setMode('otp-email')
+        }
       } else {
-        toast.error(result.message)
+        toast.error(typed.message || 'Registration failed')
       }
-    } catch (error) {
-      toast.error('Signup failed. Please try again.')
+    } catch (error: any) {
+      console.error('Signup error:', error)
+      const errorMessage = error?.message || error?.response?.data?.message || 'Signup failed. Please check your connection and try again.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -133,14 +186,16 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         mode === 'otp-email' ? userEmail : undefined,
         mode === 'otp-sms' ? userPhone : undefined
       )
+      const typed = result as { success: boolean; message: string; data?: AuthPayload }
       
-      if (result.success) {
-        apiClient.setToken(result.data.token)
-        login(result.data.token, result.data.user)
+      if (typed.success && typed.data) {
+        const payload = typed.data
+        apiClient.setToken(payload.token)
+        login(payload.token, payload.user)
         toast.success('Verification successful!')
         onClose()
       } else {
-        toast.error(result.message)
+        toast.error(typed.message)
       }
     } catch (error) {
       toast.error('Verification failed. Please try again.')

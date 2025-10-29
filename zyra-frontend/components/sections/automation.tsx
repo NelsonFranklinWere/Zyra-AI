@@ -27,7 +27,7 @@ interface Automation {
   success_count: number
   error_count: number
   last_executed: string
-  next_execution: string
+  next_execution: string | null
   workflow_config: {
     n8n_workflow_id: string
     campaign_id: string
@@ -83,7 +83,7 @@ const mockAutomations: Automation[] = [
     success_count: 8,
     error_count: 0,
     last_executed: '2024-01-12T10:00:00Z',
-    next_execution: null,
+    next_execution: null as string | null,
     workflow_config: {
       n8n_workflow_id: 'wf_125',
       campaign_id: 'camp_458',

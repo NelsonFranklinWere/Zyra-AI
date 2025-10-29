@@ -1,6 +1,5 @@
 "use client"
 
-import { Header } from "@/components/shared/header"
 import { Footer } from "@/components/shared/footer"
 import { motion } from "framer-motion"
 import { 
@@ -76,8 +75,6 @@ const nodeTypes = [
 export default function AutomationPage() {
   return (
     <div className="min-h-screen bg-zyra-gradient">
-      <Header />
-      
       <main className="py-8">
         <div className="max-w-7xl mx-auto px-4">
           {/* Page Header */}

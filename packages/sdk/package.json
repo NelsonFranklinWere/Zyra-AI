@@ -1,0 +1,39 @@
+{
+  "name": "@zyra/sdk",
+  "version": "1.0.0",
+  "description": "Official Zyra SDK for Node.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "zyra",
+    "automation",
+    "ai",
+    "sdk",
+    "api"
+  ],
+  "author": "Zyra Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zyra/zyra-platform.git",
+    "directory": "packages/sdk"
+  }
+}

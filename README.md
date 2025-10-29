@@ -1,327 +1,390 @@
-# 🚀 Zyra - AI Automation & Marketing Intelligence Platform
+# Zyra - AI-Powered Automation Platform
 
-> **The future of business automation is here.** Zyra combines cutting-edge AI with intelligent workflow automation to transform how businesses operate in the digital economy (2025-2030).
+Zyra is a comprehensive, multi-tenant SaaS platform that provides AI-powered automation, data analysis, and intelligent insights for businesses. Built with modern technologies and designed for scalability, security, and compliance.
 
-## 🌟 Overview
+## 🚀 Features
 
-Zyra is an advanced AI automation and marketing intelligence system designed for digital wholesalers, retailers, and modern businesses. We combine AI-driven data processing, customer segmentation, smart automation, and adaptive targeting to help businesses sell smarter — not louder.
+### Core Capabilities
+- **AI-Powered Email Automation** - Intelligent email workflows with triggers, conditions, and actions
+- **Advanced AI Analysis** - Content analysis, sentiment detection, and actionable insights
+- **Multi-Database Sync** - Seamless data synchronization across different database systems
+- **Automated Reporting** - Scheduled reports with PDF/CSV generation and distribution
+- **Social Media Integration** - Automated posting and engagement across platforms
+- **Payment Processing** - MPesa, Stripe, and bank integration for financial automation
+- **CV & Content Generation** - AI-powered CV creation and social media content generation
+- **Data Import/Export** - CSV/Excel import with schema mapping and validation
 
-**Mission**: Make every product reach the right person at the right time — targeting diverse audiences including kids, Gen Alpha, Gen Z youth, millennials, parents, and Gen X across all demographics and interests.
-
-## 🎨 Design Philosophy
-
-**Theme: "Neo-Futuristic Intelligence"** - A sleek, cyber-inspired design that embodies the future of automation and AI.
-
-### Color Palette
-- **Deep Navy**: `#0a0e27` - Primary background
-- **Electric Violet**: `#8b5cf6` - Primary accent and AI elements
-- **Cyan Blue**: `#06b6d4` - Secondary accent and highlights
-- **Glass Effects**: Semi-transparent overlays with backdrop blur
-- **Neon Glows**: Dynamic lighting effects for interactive elements
+### Technical Features
+- **Multi-tenant Architecture** - Secure tenant isolation with role-based access control
+- **Real-time Processing** - WebSocket connections for live updates and notifications
+- **Background Workers** - Queue-based processing for heavy operations
+- **API-First Design** - Comprehensive REST API with OpenAPI documentation
+- **Security & Compliance** - GDPR, CCPA, and cybercrime law compliance
+- **Monitoring & Analytics** - Built-in monitoring with Prometheus and Grafana
 
 ## 🏗️ Architecture
 
-### Frontend (Next.js 14)
-```
-zyra-frontend/
-├── app/                    # Next.js App Router
-│   ├── page.tsx           # Landing page
-│   ├── layout.tsx         # Root layout
-│   └── api/               # API routes
-├── components/            # React components
-│   ├── ui/                # Reusable UI components
-│   ├── sections/          # Page sections
-│   └── shared/            # Shared components
-├── lib/                   # Utility functions
-├── styles/                # Global styles
-└── public/                # Static assets
-```
+### Backend Stack
+- **Node.js + Express** - High-performance API server
+- **PostgreSQL** - Primary database with JSONB support
+- **Redis** - Caching and message queuing
+- **Prisma** - Type-safe database ORM
+- **BullMQ** - Background job processing
+- **OpenAI/Anthropic** - AI model integration
 
-### Backend (Node.js + Express)
-```
-backend/
-├── src/
-│   ├── controllers/       # Route controllers
-│   ├── services/          # Business logic
-│   ├── models/            # Data models
-│   ├── middleware/        # Custom middleware
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   └── config/            # Configuration
-├── migrations/            # Database migrations
-├── seeds/                 # Database seeds
-└── docs/                  # Documentation
-```
-
-## 🚀 Core Capabilities
-
-### 🧠 AI Persona Engine
-- Analyze uploaded customer or sales data
-- Detect purchase patterns, interests, and demographics
-- Create buyer personas (e.g., "Tech-Savvy Parents", "Young Professionals", "Family Shoppers", "Lifestyle Enthusiasts", "Value-Conscious Buyers")
-- Continuously refine personas as new data arrives
-
-### 🎯 Smart Channel Matching
-- Identify which platform (WhatsApp, Instagram, TikTok, Telegram, Email) best fits each persona
-- Automatically plan distribution schedules for maximum engagement
-- Optimize post formats (image, text, caption tone, emojis) to match target platform
-
-### 🎭 Intent-Based Marketing (Mood AI)
-- Analyze product descriptions + trending keywords
-- Detect emotional tone of current online conversations
-- Suggest or auto-generate promotional messages that resonate with diverse audience preferences and cultural contexts
-
-### 🔮 Predictive Targeting
-- Identify new potential customers based on behavior, location, and interest similarity
-- Recommend who to target next and where
-- Use predictive models to prioritize high-conversion customers
-
-### ✍️ AI Campaign Composer
-- Generate campaign copy (captions, ads, posts, emails)
-- Adapt language style to match target demographics (youth-friendly, professional, family-oriented, or emotional tone)
-- Create multiple variants for A/B testing
-- Integrate directly with automation tools (e.g., n8n) to schedule publishing
-
-### 📊 Smart Funnel Tracker
-- Monitor every customer journey (Impression → Click → Message → Purchase → Return)
-- Visualize engagement, drop-off rates, and conversation quality
-- Suggest follow-up messages or offers to convert leads
-
-### 💰 Dynamic Pricing Advisor
-- Analyze product demand, seasonality, and competition
-- Suggest ideal selling prices and discount strategies
-- Generate bundle offers automatically
-
-### 🛡️ Trust & Lead Verification
-- Score customers by engagement and purchase behavior
-- Help sellers filter out spam, ghost buyers, and bots
-
-## 🧱 Zyra Interaction Example
-
-**User**: "Zyra, post my new sneaker collection to diverse audiences in Nairobi, add 10% profit margin and schedule WhatsApp + Instagram posts for Friday."
-
-**Zyra should**:
-1. Fetch sneaker data from PostgreSQL
-2. Identify target personas = Young Professionals, Sports Enthusiasts, Fashion Lovers, Value Seekers
-3. Add 10% margin to base prices
-4. Generate captions tailored to each demographic
-5. Create visuals or call to existing templates
-6. Send tasks to n8n → publish Friday 6PM
-7. Log results + engagement
-
-## 🔁 Zyra's Feedback Loop
-
-Every time a campaign runs:
-1. Collect performance data (views, clicks, conversions)
-2. Update persona and campaign rules
-3. Refine future targeting and tone
-4. Send insights dashboard summaries
-
-## 💬 Tone and Brand Personality
-
-Zyra speaks like a modern, confident, helpful AI assistant:
-
-> "Hey 👋 Nelson, your sneaker collection is ready for diverse audiences. I found 4 target segments that will love it — and scheduled a Friday evening release (6PM peak engagement). Ready to boost sales 🚀?"
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion
-- **Charts**: Recharts
-- **Forms**: React Hook Form + Zod
-- **Icons**: Lucide React
-
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Language**: JavaScript/TypeScript
-- **Database**: PostgreSQL
-- **ORM**: Knex.js
-- **Authentication**: JWT
-- **Real-time**: Socket.IO
-
-### AI & Automation
-- **AI Models**: OpenAI GPT-4, Claude, Local LLMs
-- **Automation**: n8n workflow engine
-- **AI Pipeline**: Langflow integration
-- **Data Processing**: Custom AI services
+### Frontend Stack
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Framer Motion** - Smooth animations
+- **Radix UI** - Accessible component primitives
 
 ### Infrastructure
-- **Frontend Hosting**: Vercel
-- **Backend Hosting**: Render/Railway
-- **Database**: Supabase/Neon.tech
-- **File Storage**: AWS S3/Cloudinary
-- **Monitoring**: Winston logging
+- **Docker** - Containerized deployment
+- **Nginx** - Reverse proxy and load balancing
+- **Prometheus + Grafana** - Monitoring and observability
+- **N8N** - Workflow automation (optional)
 
-## 📦 Installation & Setup
+## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js 18+ 
-- PostgreSQL 14+
-- npm or yarn
+- Node.js 18+ and npm
+- PostgreSQL 15+
+- Redis 7+
+- Docker and Docker Compose (optional)
 
-### Frontend Setup
+### Local Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/zyra/zyra-platform.git
+   cd zyra-platform
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Backend
+   cd backend
+   npm install
+   
+   # Frontend
+   cd ../zyra-frontend
+   npm install
+   ```
+
+3. **Database setup**
+   ```bash
+   # Create database
+   createdb zyra_db
+   
+   # Run migrations
+   cd backend
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+4. **Environment configuration**
+   ```bash
+   # Backend
+   cd backend
+   cp env.example .env
+   # Edit .env with your configuration
+   
+   # Frontend
+   cd ../zyra-frontend
+   cp .env.local.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+5. **Start the development servers**
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   npm run dev
+   
+   # Terminal 2 - Frontend
+   cd zyra-frontend
+   npm run dev
+   
+   # Terminal 3 - Worker (optional)
+   cd backend
+   npm run worker
+   ```
+
+### Docker Deployment
+
+1. **Using Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access the services**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:3001
+   - N8N (optional): http://localhost:5678
+   - Grafana: http://localhost:3001 (admin/admin123)
+
+## 📚 API Documentation
+
+### Authentication
+All API endpoints require authentication via JWT tokens:
+
 ```bash
-cd zyra-frontend
-npm install
-npm run dev
+# Login
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}'
+
+# Use token in subsequent requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  http://localhost:3001/api/automations/email
 ```
 
-### Backend Setup
+### Key Endpoints
+
+#### Email Automation
 ```bash
-cd backend
-npm install
-cp env.example .env
-# Configure your .env file
-npm run migrate
-npm run dev
+# Create automation
+curl -X POST http://localhost:3001/api/automations/email \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Welcome Series",
+    "triggers": {"type": "user_signup"},
+    "conditions": {"user_segment": "premium"},
+    "actions": {"type": "send_email", "template": "welcome"}
+  }'
+
+# Trigger automation
+curl -X POST http://localhost:3001/api/automations/email/ID/trigger \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"triggerPayload": {"manual": true}}'
 ```
 
-### Database Setup
+#### AI Analysis
 ```bash
-# Create PostgreSQL database
-createdb zyra_db
+# Analyze content
+curl -X POST http://localhost:3001/api/ai/analyze \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceType": "email",
+    "sourceId": "email_123",
+    "options": {"model": "gpt-4"}
+  }'
 
-# Run migrations
-npm run migrate
+# Generate CV
+curl -X POST http://localhost:3001/api/ai/generate/cv \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "personalInfo": {"firstName": "John", "lastName": "Doe"},
+    "experience": [{"company": "Tech Corp", "position": "Developer"}],
+    "template": "modern"
+  }'
+```
 
-# Seed initial data (optional)
-npm run seed
+#### Integrations
+```bash
+# Request verification
+curl -X POST http://localhost:3001/api/integrations/verify \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "facebook_page",
+    "identifier": "page_123",
+    "method": "email"
+  }'
+
+# Confirm verification
+curl -X POST http://localhost:3001/api/integrations/verify/confirm \
+  -H "Content-Type: application/json" \
+  -d '{"token": "verification_token"}'
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-#### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_WS_URL=http://localhost:3001
-```
-
 #### Backend (.env)
 ```env
-# Server
-PORT=3001
-NODE_ENV=development
-
 # Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=zyra_db
-DB_USER=zyra_user
-DB_PASSWORD=zyra_password
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRES_IN=7d
+DATABASE_URL="postgresql://zyra_user:password@localhost:5432/zyra_db"
+REDIS_URL="redis://localhost:6379"
 
 # AI Services
-OPENAI_API_KEY=your-openai-key
-ANTHROPIC_API_KEY=your-anthropic-key
+OPENAI_API_KEY="sk-your-openai-api-key"
+OPENAI_MODEL="gpt-4"
 
-# Integrations
-LANGFLOW_API_URL=http://localhost:7860
-N8N_API_URL=http://localhost:5678
+# Email
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+
+# Payments
+STRIPE_SECRET_KEY="sk_test_your-stripe-secret"
+MPESA_CONSUMER_KEY="your-mpesa-consumer-key"
+
+# Security
+JWT_SECRET="your-super-secret-jwt-key"
+WEBHOOK_SIGNATURE_SECRET="your-webhook-secret"
+```
+
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_your-stripe-publishable"
+```
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+cd backend
+npm test
+```
+
+### Integration Tests
+```bash
+cd backend
+npm run test:integration
+```
+
+### E2E Tests
+```bash
+cd zyra-frontend
+npm run test:e2e
+```
+
+## 📊 Monitoring & Observability
+
+### Health Checks
+- Backend: http://localhost:3001/health
+- Frontend: http://localhost:3000/api/health
+
+### Metrics
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3001 (admin/admin123)
+
+### Logs
+```bash
+# Backend logs
+tail -f backend/logs/combined.log
+
+# Docker logs
+docker-compose logs -f backend
 ```
 
 ## 🚀 Deployment
 
-### Frontend (Vercel)
-```bash
-# Install Vercel CLI
-npm i -g vercel
+### Production Deployment
 
-# Deploy
-vercel --prod
+1. **Environment Setup**
+   ```bash
+   # Set production environment variables
+   export NODE_ENV=production
+   export DATABASE_URL="postgresql://user:pass@prod-db:5432/zyra_db"
+   export REDIS_URL="redis://prod-redis:6379"
+   ```
+
+2. **Database Migration**
+   ```bash
+   cd backend
+   npx prisma migrate deploy
+   ```
+
+3. **Build and Deploy**
+   ```bash
+   # Backend
+   cd backend
+   npm run build
+   npm start
+   
+   # Frontend
+   cd zyra-frontend
+   npm run build
+   npm start
+   ```
+
+### Docker Production
+```bash
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Backend (Render/Railway)
-```bash
-# Build and deploy
-npm run build
-# Configure environment variables in hosting platform
-```
+## 🔒 Security
 
-### Database (Supabase/Neon)
-```bash
-# Connect to hosted PostgreSQL
-# Update connection string in .env
-# Run migrations on production
-```
+### Security Features
+- JWT-based authentication with refresh tokens
+- Role-based access control (RBAC)
+- Rate limiting and DDoS protection
+- Webhook signature verification
+- Data encryption at rest and in transit
+- GDPR and CCPA compliance
 
-## 📚 API Documentation
+### Security Checklist
+- [ ] Change default passwords
+- [ ] Configure SSL/TLS certificates
+- [ ] Set up firewall rules
+- [ ] Enable audit logging
+- [ ] Configure backup encryption
+- [ ] Review access permissions
 
-### Authentication Endpoints
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/me` - Get user profile
+## 📈 Performance
 
-### Automation Endpoints
-- `GET /api/automations` - List automations
-- `POST /api/automations` - Create automation
-- `PUT /api/automations/:id` - Update automation
-- `DELETE /api/automations/:id` - Delete automation
-- `POST /api/automations/:id/execute` - Execute automation
+### Optimization Tips
+- Enable Redis caching for frequently accessed data
+- Use database connection pooling
+- Implement CDN for static assets
+- Monitor and optimize database queries
+- Use background workers for heavy operations
 
-### Data Processing Endpoints
-- `POST /api/data/sources/upload` - Upload data file
-- `POST /api/data/analyze` - Analyze data
-- `GET /api/data/sources/:id/preview` - Preview data
-
-### AI Endpoints
-- `POST /api/ai/chat` - Chat with AI
-- `POST /api/ai/insights/generate` - Generate insights
-- `GET /api/ai/insights` - List AI insights
-
-### Dashboard Endpoints
-- `GET /api/dashboard/overview` - Dashboard overview
-- `GET /api/dashboard/stats` - Statistics
-- `GET /api/dashboard/activity` - Recent activity
-
-## 🔒 Security Features
-
-- JWT-based authentication
-- Role-based access control
-- Rate limiting
-- Input validation
-- SQL injection protection
-- CORS configuration
-- Helmet security headers
-- Encrypted password storage
-
-## 📈 Performance & Monitoring
-
-- Real-time WebSocket updates
-- Comprehensive logging with Winston
-- Database query optimization
-- Caching strategies
-- Error tracking and monitoring
-- Performance metrics collection
+### Scaling
+- Horizontal scaling with load balancers
+- Database read replicas
+- Redis clustering for high availability
+- Microservices architecture for large deployments
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-- Documentation: [docs.zyra.ai](https://docs.zyra.ai)
+- Documentation: [docs.zyra.com](https://docs.zyra.com)
+- Support: support@zyra.com
 - Community: [Discord](https://discord.gg/zyra)
-- Issues: [GitHub Issues](https://github.com/zyra/issues)
+- Issues: [GitHub Issues](https://github.com/zyra/zyra-platform/issues)
+
+## 🗺️ Roadmap
+
+### Q1 2024
+- [ ] Advanced AI model integration
+- [ ] Mobile app development
+- [ ] Enhanced analytics dashboard
+- [ ] Multi-language support
+
+### Q2 2024
+- [ ] Enterprise SSO integration
+- [ ] Advanced workflow builder
+- [ ] Real-time collaboration features
+- [ ] API rate limiting improvements
+
+### Q3 2024
+- [ ] Machine learning model training
+- [ ] Advanced security features
+- [ ] Performance optimizations
+- [ ] Third-party marketplace
 
 ---
 
-**Built with ❤️ for the future of automation**
-# Zyra-AI
+**Built with ❤️ by the Zyra Team**

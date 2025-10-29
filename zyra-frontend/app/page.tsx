@@ -1,6 +1,5 @@
 "use client"
 
-import { Header } from "@/components/shared/header"
 import { Hero } from "@/components/sections/hero"
 import { Features } from "@/components/sections/features"
 import { Dashboard } from "@/components/sections/dashboard"
@@ -9,11 +8,29 @@ import { DataUpload } from "@/components/ui/data-upload"
 import AIChatEnhanced from "@/components/ui/ai-chat-enhanced"
 import { Footer } from "@/components/shared/footer"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
 export default function Home() {
   const [showDataUpload, setShowDataUpload] = useState(false)
   const [showAIChat, setShowAIChat] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const error = searchParams.get('error')
+    if (error) {
+      setAuthError(error)
+      // Clear the error from URL after 5 seconds
+      setTimeout(() => {
+        setAuthError(null)
+        // Remove error from URL
+        const url = new URL(window.location.href)
+        url.searchParams.delete('error')
+        window.history.replaceState({}, '', url.toString())
+      }, 5000)
+    }
+  }, [searchParams])
 
   // If showing AI chat, render the full-screen chat interface
   if (showAIChat) {
@@ -22,7 +39,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zyra-gradient cyber-grid">
-      <Header />
+      {/* Error Display */}
+      {authError && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+        >
+          <div className="bg-red-500/90 backdrop-blur-sm border border-red-400/50 rounded-lg px-6 py-3 text-white text-center max-w-md">
+            <p className="font-medium">
+              {authError === 'auth_failed' && 'Authentication failed. Please try again.'}
+              {authError === 'invalid_data' && 'Invalid authentication data. Please try again.'}
+              {authError === 'server_error' && 'Server error during authentication. Please try again.'}
+            </p>
+          </div>
+        </motion.div>
+      )}
+      
       <main>
         <Hero />
         <Features />

@@ -60,6 +60,13 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
             <Link 
+              href="/" 
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+            >
+              <Bot className="w-4 h-4 group-hover:animate-pulse" />
+              <span className="font-medium">Home</span>
+            </Link>
+            <Link 
               href="/dashboard" 
               className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
             >
@@ -86,6 +93,20 @@ export const Header = () => {
             >
               <MessageSquare className="w-4 h-4 group-hover:animate-pulse" />
               <span className="font-medium">AI Chat</span>
+            </Link>
+            <Link 
+              href="/blog" 
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+            >
+              <Zap className="w-4 h-4 group-hover:animate-pulse" />
+              <span className="font-medium">Blog</span>
+            </Link>
+            <Link
+              href="/docs" 
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+            >
+              <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
+              <span className="font-medium">Docs</span>
             </Link>
           </nav>
           
@@ -161,6 +182,14 @@ export const Header = () => {
           <div className="py-4 border-t border-zyra-glass-border">
             <nav className="flex flex-col space-y-2">
               <Link 
+                href="/" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Bot className="w-5 h-5 group-hover:animate-pulse" />
+                <span className="font-medium">Home</span>
+              </Link>
+              <Link 
                 href="/dashboard" 
                 className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
                 onClick={() => setIsMenuOpen(false)}
@@ -191,6 +220,22 @@ export const Header = () => {
               >
                 <MessageSquare className="w-5 h-5 group-hover:animate-pulse" />
                 <span className="font-medium">AI Chat</span>
+              </Link>
+              <Link 
+                href="/blog" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Zap className="w-5 h-5 group-hover:animate-pulse" />
+                <span className="font-medium">Blog</span>
+              </Link>
+              <Link 
+                href="/docs" 
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
+                <span className="font-medium">Docs</span>
               </Link>
               <div className="flex flex-col space-y-2 mt-4 pt-4 border-t border-zyra-glass-border">
                 {user ? (

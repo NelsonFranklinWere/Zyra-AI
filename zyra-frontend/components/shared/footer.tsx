@@ -49,11 +49,11 @@ export const Footer = () => {
           >
             <h4 className="text-lg font-semibold text-electric-teal mb-6">Product</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Features</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Pricing</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Documentation</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">API Reference</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Integrations</a></li>
+              <li><a href="/#features" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Features</a></li>
+              <li><a href="/#pricing" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Pricing</a></li>
+              <li><a href="/docs" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Documentation</a></li>
+              <li><a href="/docs/api" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">API Reference</a></li>
+              <li><a href="/dashboard/settings/integrations" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300">Integrations</a></li>
             </ul>
           </motion.div>
 
@@ -66,11 +66,11 @@ export const Footer = () => {
           >
             <h4 className="text-lg font-semibold text-aurora-purple mb-6">Company</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">About</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Blog</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Careers</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Press</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Partners</a></li>
+              <li><a href="/#about" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">About</a></li>
+              <li><a href="/blog" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Blog</a></li>
+              <li><a href="/#careers" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Careers</a></li>
+              <li><a href="/#press" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Press</a></li>
+              <li><a href="/#partners" className="text-soft-silver-dark hover:text-aurora-purple transition-colors duration-300">Partners</a></li>
             </ul>
           </motion.div>
 
@@ -83,11 +83,11 @@ export const Footer = () => {
           >
             <h4 className="text-lg font-semibold text-neon-coral mb-6">Support</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Help Center</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Contact</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Status</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Community</a></li>
-              <li><a href="#" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Security</a></li>
+              <li><a href="/docs" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Help Center</a></li>
+              <li><a href="/contact" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Contact</a></li>
+              <li><a href="/#status" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Status</a></li>
+              <li><a href="/#community" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Community</a></li>
+              <li><a href="/#security" className="text-soft-silver-dark hover:text-neon-coral transition-colors duration-300">Security</a></li>
             </ul>
           </motion.div>
         </div>
@@ -104,9 +104,9 @@ export const Footer = () => {
               &copy; 2025 Zyra. All rights reserved. Built for the future of automation.
             </p>
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Privacy Policy</a>
-              <a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Terms of Service</a>
-              <a href="#" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Cookie Settings</a>
+              <a href="/legal/privacy" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Privacy Policy</a>
+              <a href="/legal/terms" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Terms of Service</a>
+              <a href="/legal/cookies" className="text-soft-silver-dark hover:text-electric-teal transition-colors duration-300 text-sm">Cookie Settings</a>
             </div>
           </div>
         </motion.div>

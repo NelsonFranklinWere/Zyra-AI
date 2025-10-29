@@ -20,7 +20,8 @@ import {
   RefreshCw,
   Eye,
   Heart,
-  Share2
+  Share2,
+  X
 } from 'lucide-react';
 
 interface InsightData {
