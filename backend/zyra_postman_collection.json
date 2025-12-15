@@ -1,0 +1,466 @@
+{
+  "info": {
+    "name": "Zyra API Collection - Sprint 2 Core",
+    "description": "Complete Postman collection for Zyra Sprint 2 core endpoints: Orders, Payments, Rules, Templates, and Traces",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "zyra-sprint2-core-2024"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Owner\",\n  \"email\": \"owner@example.com\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@acme.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders/:orderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "orders", ":orderId"],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Order (via Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerPhone\": \"+254700000000\",\n  \"items\": [\n    {\n      \"productId\": \"product-id-here\",\n      \"quantity\": 2,\n      \"priceCents\": 50000\n    }\n  ],\n  \"conversationId\": \"conversation-id-optional\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "orders"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Simulate Payment Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/simulate/payment/:attemptId/success",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "simulate", "payment", ":attemptId", "success"],
+              "variable": [
+                {
+                  "key": "attemptId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Trigger STK Push",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"order-id-here\",\n  \"phoneNumber\": \"254700000000\",\n  \"amountCents\": 120000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/payments/stk-push",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "payments", "stk-push"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rules",
+      "item": [
+        {
+          "name": "Get All Rules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "rules"]
+            }
+          }
+        },
+        {
+          "name": "Create Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"greeting_response\",\n  \"value\": {\n    \"conditions\": [\n      {\n        \"type\": \"contains\",\n        \"field\": \"message\",\n        \"value\": \"hello\"\n      }\n    ],\n    \"actions\": [\n      {\n        \"type\": \"reply\",\n        \"template\": \"welcome_message\"\n      }\n    ]\n  },\n  \"priority\": 100,\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "rules"]
+            }
+          }
+        },
+        {
+          "name": "Update Rule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": {\n    \"conditions\": [],\n    \"actions\": []\n  },\n  \"enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rules/:ruleId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "rules", ":ruleId"],
+              "variable": [
+                {
+                  "key": "ruleId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/rules/:ruleId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "rules", ":ruleId"],
+              "variable": [
+                {
+                  "key": "ruleId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "item": [
+        {
+          "name": "Get All Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"welcome_message\",\n  \"content\": \"Hello {{customerName}}! Welcome to our store. How can we help you today?\",\n  \"variables\": [\"customerName\"],\n  \"tone\": \"friendly\",\n  \"status\": \"draft\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Update Template",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated welcome message\",\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/templates/:templateName",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "templates", ":templateName"],
+              "variable": [
+                {
+                  "key": "templateName",
+                  "value": "welcome_message"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Template",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/templates/:templateName",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "templates", ":templateName"],
+              "variable": [
+                {
+                  "key": "templateName",
+                  "value": "welcome_message"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Traces & Analytics",
+      "item": [
+        {
+          "name": "Get Processing Traces",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics?type=processing_traces",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "analytics"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "processing_traces"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Analytics Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "analytics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "WhatsApp Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700000000\",\n  \"message\": \"Do you have size 42 black sneakers?\",\n  \"timestamp\": 1234567890\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/whatsapp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "webhooks", "whatsapp"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

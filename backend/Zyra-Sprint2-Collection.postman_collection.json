@@ -1,0 +1,293 @@
+{
+  "info": {
+    "name": "Zyra Sprint 2 API Collection",
+    "description": "Postman collection for Zyra Sprint 2 endpoints: webhooks, admin simulate, rules, templates, orders, payments, products, conversations. Replace {{base_url}} and {{authToken}} in environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "zyra-sprint2-collection-0001"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (POST /api/auth/register)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Owner\",\n  \"email\": \"owner@acme.test\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login (POST /api/auth/login)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"owner@acme.com\",\n  \"password\": \"password123\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get me (GET /api/auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/me", "host": ["{{base_url}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Webhook Verify (GET /api/webhooks/whatsapp/verify)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/whatsapp/verify?hub.mode=subscribe&hub.challenge=CHALLENGE&hub.verify_token=changeme",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "whatsapp", "verify"],
+              "query": [
+                { "key": "hub.mode", "value": "subscribe" },
+                { "key": "hub.challenge", "value": "CHALLENGE" },
+                { "key": "hub.verify_token", "value": "changeme" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Inbound webhook (POST /api/webhooks/whatsapp)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700111222\",\n  \"message\": \"Do you have size 42 black sneakers?\",\n  \"timestamp\": 1699999999\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/webhooks/whatsapp", "host": ["{{base_url}}"], "path": ["api", "webhooks", "whatsapp"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Simulation & Utilities",
+      "item": [
+        {
+          "name": "Simulate inbound message (POST /api/admin/simulate/message)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700111222\",\n  \"message\": \"I want to buy black shoes size 42\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/simulate/message",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "simulate", "message"]
+            }
+          }
+        },
+        {
+          "name": "Simulate payment success (POST /api/admin/simulate/payment/:attemptId/success)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/simulate/payment/1/success",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "simulate", "payment", "1", "success"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rules",
+      "item": [
+        {
+          "name": "List Rules (GET /api/admin/rules)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/rules", "host": ["{{base_url}}"], "path": ["api", "admin", "rules"] }
+          }
+        },
+        {
+          "name": "Create Rule (POST /api/admin/rules)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"order_v1\",\n  \"value\": {\n    \"name\": \"Order Request Handler\",\n    \"enabled\": true,\n    \"priority\": 200,\n    \"trigger\": { \"type\": \"intent\", \"value\": \"order_request\" },\n    \"conditions\": [{\"field\":\"product.stock\",\"op\":\">\",\"value\":0}],\n    \"actions\": [{\"type\":\"create_order\"},{\"type\":\"send_message\",\"params\":{\"template\":\"payment_request\"}}]\n  }\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/rules", "host": ["{{base_url}}"], "path": ["api", "admin", "rules"] }
+          }
+        },
+        {
+          "name": "Update Rule (PUT /api/admin/rules/:id)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"value\": {\n    \"enabled\": false\n  }\n}" },
+            "url": { "raw": "{{base_url}}/api/admin/rules/1", "host": ["{{base_url}}"], "path": ["api", "admin", "rules", "1"] }
+          }
+        },
+        {
+          "name": "Delete Rule (DELETE /api/admin/rules/:id)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/rules/1", "host": ["{{base_url}}"], "path": ["api", "admin", "rules", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "item": [
+        {
+          "name": "List Templates (GET /api/admin/templates)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/templates", "host": ["{{base_url}}"], "path": ["api", "admin", "templates"] }
+          }
+        },
+        {
+          "name": "Create Template (POST /api/admin/templates)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"payment_request\",\n  \"content\": \"Hi {{customer_name}},\\nTo complete order #{{order_id}} for {{product_name}} ({{qty}}), please pay KES {{amount}} via MPESA Paybill {{paybill}}.\",\n  \"tone\": \"friendly\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/templates", "host": ["{{base_url}}"], "path": ["api", "admin", "templates"] }
+          }
+        },
+        {
+          "name": "Update Template (PUT /api/admin/templates/:name)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Updated content here\"\n}" },
+            "url": {
+              "raw": "{{base_url}}/api/admin/templates/payment_request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "templates", "payment_request"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversations & Messages",
+      "item": [
+        {
+          "name": "List Conversations (GET /api/admin/conversations)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/conversations", "host": ["{{base_url}}"], "path": ["api", "admin", "conversations"] }
+          }
+        },
+        {
+          "name": "Get Conversation Audit (GET /api/admin/conversations/:id/audit)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/conversations/1/audit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "conversations", "1", "audit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders & Payments",
+      "item": [
+        {
+          "name": "List Orders (GET /api/admin/orders)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/orders", "host": ["{{base_url}}"], "path": ["api", "admin", "orders"] }
+          }
+        },
+        {
+          "name": "Get Order Details (GET /api/admin/orders/:id)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products (GET /api/products)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/products", "host": ["{{base_url}}"], "path": ["api", "products"] }
+          }
+        },
+        {
+          "name": "Create Product (POST /api/products)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Black Sneaker\",\n  \"sku\": \"BS-42\",\n  \"price\": 3500,\n  \"stock\": 10,\n  \"description\": \"Comfortable black sneakers size 42\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/products", "host": ["{{base_url}}"], "path": ["api", "products"] }
+          }
+        }
+      ]
+    }
+  ]
+}
+

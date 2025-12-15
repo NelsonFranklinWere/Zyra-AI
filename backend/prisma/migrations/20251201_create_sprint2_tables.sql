@@ -1,0 +1,116 @@
+-- Sprint 2 migration: create rules, templates, orders, payments, analytics_events, processing_traces, outgoing_messages, payment_attempts
+-- Note: This SQL is for reference. Prisma migrations are preferred - run: npx prisma migrate dev --name sprint2_schema
+
+-- RULES (conversation_rules table already exists in Prisma schema, this is reference SQL)
+-- CREATE TABLE IF NOT EXISTS conversation_rules (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+--   key TEXT NOT NULL,
+--   value JSONB NOT NULL,
+--   enabled BOOLEAN NOT NULL DEFAULT true,
+--   priority INTEGER NOT NULL DEFAULT 100,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   UNIQUE(org_id, key)
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_rules_org_id ON conversation_rules(org_id);
+-- CREATE INDEX IF NOT EXISTS idx_rules_priority ON conversation_rules(org_id, enabled);
+
+-- TEMPLATES (templates table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS templates (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+--   name TEXT NOT NULL,
+--   content TEXT NOT NULL,
+--   variables JSONB DEFAULT '[]'::jsonb,
+--   tone TEXT DEFAULT 'friendly',
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   UNIQUE(org_id, name)
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_templates_org_id ON templates(org_id);
+
+-- ORDERS (orders table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS orders (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+--   conversation_id UUID REFERENCES conversations(id) ON DELETE SET NULL,
+--   customer_phone TEXT NOT NULL,
+--   items JSONB NOT NULL,
+--   total_cents BIGINT NOT NULL DEFAULT 0,
+--   payment_status TEXT DEFAULT 'PENDING',
+--   delivery_status TEXT DEFAULT 'PENDING',
+--   metadata JSONB DEFAULT '{}'::jsonb,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_orders_org_id ON orders(org_id);
+-- CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
+-- CREATE INDEX IF NOT EXISTS idx_orders_conversation_id ON orders(conversation_id);
+
+-- PAYMENT ATTEMPTS (payment_attempts table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS payment_attempts (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+--   amount_cents BIGINT NOT NULL,
+--   provider TEXT NOT NULL DEFAULT 'mpesa',
+--   status TEXT NOT NULL DEFAULT 'INITIATED',
+--   provider_ref TEXT,
+--   metadata JSONB DEFAULT '{}'::jsonb,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_payment_attempts_order_id ON payment_attempts(order_id);
+-- CREATE INDEX IF NOT EXISTS idx_payment_attempts_status ON payment_attempts(status);
+
+-- ANALYTICS EVENTS (analytics_events table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS analytics_events (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   org_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+--   event_type TEXT NOT NULL,
+--   payload JSONB,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_analytics_org_id ON analytics_events(org_id);
+-- CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics_events(event_type);
+-- CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics_events(created_at);
+
+-- PROCESSING TRACES (processing_traces table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS processing_traces (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   message_id UUID NOT NULL,
+--   step TEXT NOT NULL,
+--   input JSONB,
+--   output JSONB,
+--   duration_ms INTEGER,
+--   success BOOLEAN DEFAULT true,
+--   error TEXT,
+--   metadata JSONB,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_processing_traces_message_id ON processing_traces(message_id);
+-- CREATE INDEX IF NOT EXISTS idx_processing_traces_created_at ON processing_traces(created_at);
+
+-- OUTGOING MESSAGES (outgoing_messages table already exists in Prisma schema)
+-- CREATE TABLE IF NOT EXISTS outgoing_messages (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   org_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+--   conversation_id UUID REFERENCES conversations(id) ON DELETE SET NULL,
+--   to TEXT NOT NULL,
+--   text TEXT NOT NULL,
+--   template TEXT,
+--   status TEXT DEFAULT 'pending',
+--   provider_ref TEXT,
+--   error TEXT,
+--   metadata JSONB DEFAULT '{}'::jsonb,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+--   sent_at TIMESTAMP WITH TIME ZONE
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_outgoing_org_id ON outgoing_messages(org_id);
+-- CREATE INDEX IF NOT EXISTS idx_outgoing_conversation_id ON outgoing_messages(conversation_id);
+-- CREATE INDEX IF NOT EXISTS idx_outgoing_status ON outgoing_messages(status);
+-- CREATE INDEX IF NOT EXISTS idx_outgoing_created_at ON outgoing_messages(created_at);
+
+-- Note: All tables are already defined in Prisma schema.prisma
+-- Run: npx prisma migrate dev --name sprint2_schema to create these tables
+

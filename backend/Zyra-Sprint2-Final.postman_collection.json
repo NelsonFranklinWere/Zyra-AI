@@ -1,0 +1,344 @@
+{
+  "info": {
+    "name": "Zyra Sprint 2 Final API Collection",
+    "description": "Complete Postman collection for Zyra Sprint 2 including all admin, webhook, payment, and moderation endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "zyra-sprint2-final-0001"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@acme.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/me", "host": ["{{base_url}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "WhatsApp Verify",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/webhooks/whatsapp/verify?hub.mode=subscribe&hub.challenge=TEST&hub.verify_token=changeme",
+              "host": ["{{base_url}}"],
+              "path": ["api", "webhooks", "whatsapp", "verify"],
+              "query": [
+                { "key": "hub.mode", "value": "subscribe" },
+                { "key": "hub.challenge", "value": "TEST" },
+                { "key": "hub.verify_token", "value": "changeme" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "WhatsApp Inbound",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700111222\",\n  \"message\": \"Do you have size 42 black sneakers?\",\n  \"timestamp\": 1699999999\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/webhooks/whatsapp", "host": ["{{base_url}}"], "path": ["api", "webhooks", "whatsapp"] }
+          }
+        },
+        {
+          "name": "MPESA Callback",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Body\": {\n    \"stkCallback\": {\n      \"MerchantRequestID\": \"test123\",\n      \"CheckoutRequestID\": \"test-checkout-id\",\n      \"ResultCode\": 0,\n      \"ResultDesc\": \"Success\",\n      \"CallbackMetadata\": {\n        \"Item\": [\n          { \"Name\": \"MpesaReceiptNumber\", \"Value\": \"QRT123456\" },\n          { \"Name\": \"Amount\", \"Value\": 100 }\n        ]\n      }\n    }\n  }\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/webhooks/mpesa", "host": ["{{base_url}}"], "path": ["api", "webhooks", "mpesa"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Simulate",
+      "item": [
+        {
+          "name": "Simulate Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700111222\",\n  \"message\": \"I want to buy black shoes size 42\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/simulate/message", "host": ["{{base_url}}"], "path": ["api", "admin", "simulate", "message"] }
+          }
+        },
+        {
+          "name": "Simulate Payment Success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/simulate/payment/1/success", "host": ["{{base_url}}"], "path": ["api", "admin", "simulate", "payment", "1", "success"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Payments",
+      "item": [
+        {
+          "name": "Test STK",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"<order-id>\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/mpesa/test-stk", "host": ["{{base_url}}"], "path": ["api", "admin", "mpesa", "test-stk"] }
+          }
+        },
+        {
+          "name": "Reconcile Payments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/payments/reconcile?since=2024-01-01T00:00:00Z",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "payments", "reconcile"],
+              "query": [{ "key": "since", "value": "2024-01-01T00:00:00Z" }]
+            }
+          }
+        },
+        {
+          "name": "Manual Payment Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"providerRef\": \"MPESA123456\",\n  \"notes\": \"Manual confirmation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/payments/:attemptId/manual-success",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "payments", ":attemptId", "manual-success"]
+            }
+          }
+        },
+        {
+          "name": "Create Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"<order-id>\",\n  \"amountCents\": 350000,\n  \"reason\": \"Customer request\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/refunds", "host": ["{{base_url}}"], "path": ["api", "admin", "refunds"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Moderation",
+      "item": [
+        {
+          "name": "Get Pending Templates",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/moderation/templates", "host": ["{{base_url}}"], "path": ["api", "admin", "moderation", "templates"] }
+          }
+        },
+        {
+          "name": "Approve Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"notes\": \"Looks good\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/templates/:id/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "moderation", "templates", ":id", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Get Escalations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/moderation/escalations", "host": ["{{base_url}}"], "path": ["api", "admin", "moderation", "escalations"] }
+          }
+        },
+        {
+          "name": "Claim Conversation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation/conversations/:id/claim",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "moderation", "conversations", ":id", "claim"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - DLQ",
+      "item": [
+        {
+          "name": "List DLQ Items",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/dlq", "host": ["{{base_url}}"], "path": ["api", "admin", "dlq"] }
+          }
+        },
+        {
+          "name": "Reprocess DLQ Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dlq/:id/reprocess",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dlq", ":id", "reprocess"]
+            }
+          }
+        },
+        {
+          "name": "Discard DLQ Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/dlq/:id", "host": ["{{base_url}}"], "path": ["api", "admin", "dlq", ":id"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Organizations",
+      "item": [
+        {
+          "name": "Get Usage",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/organizations/:id/usage?startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "organizations", ":id", "usage"],
+              "query": [
+                { "key": "startDate", "value": "2024-01-01" },
+                { "key": "endDate", "value": "2024-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Automation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/organizations/:id/automation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "organizations", ":id", "automation"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health & Metrics",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/metrics", "host": ["{{base_url}}"], "path": ["metrics"] }
+          }
+        },
+        {
+          "name": "System Metrics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{base_url}}/system/metrics", "host": ["{{base_url}}"], "path": ["system", "metrics"] }
+          }
+        }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,181 @@
+// =========================
+// ALTERNATIVE/ENHANCED SCHEMA MODELS
+// These models can be added alongside existing ones or used to replace them
+// NOTE: Current schema uses ConversationRule, PaymentAttempt, ProcessingTrace
+// These new models have different structures - decide if merging or replacing
+// =========================
+
+// =========================
+// NEW ENUMS (Add to existing schema)
+// =========================
+
+enum RuleType {
+  KEYWORD
+  INTENT
+  FALLBACK
+}
+
+enum RuleTrigger {
+  MESSAGE_RECEIVED
+  ORDER_PLACED
+  PAYMENT_CONFIRMED
+}
+
+enum RuleActionType {
+  SEND_MESSAGE
+  APPLY_TEMPLATE
+  UPDATE_ORDER
+}
+
+// TemplateStatus already exists as string - can add as enum
+enum TemplateStatusEnum {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+// OrderStatus and PaymentStatus already exist - these match existing
+enum OrderStatusEnum {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatusEnum {
+  INITIATED
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum TraceStatus {
+  RECEIVED
+  PROCESSED
+  ERROR
+}
+
+// =========================
+// NEW RULE MODEL (Alternative to ConversationRule)
+// =========================
+// NOTE: Current schema uses ConversationRule with key/value JSON structure
+// This is a more structured alternative with explicit type/trigger/action fields
+
+model Rule {
+  id        String      @id @default(uuid())
+  orgId     String      @map("org_id")
+  type      RuleType
+  trigger   RuleTrigger
+  action    RuleActionType
+  pattern   String?     // e.g. keyword matching
+  intent    String?     // e.g. parsed AI intent
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  organization Organization @relation("RuleOrganization", fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([orgId, type])
+  @@index([orgId, trigger])
+  @@map("rules")
+}
+
+// =========================
+// TEMPLATE MODEL (Enhanced version)
+// =========================
+// NOTE: Template model already exists - this adds status enum
+// Current Template uses string status - consider migrating to enum
+
+// Option: Keep existing Template, add this as alternative
+// OR: Update existing Template to use TemplateStatusEnum
+
+// =========================
+// ORDER MODEL (Simplified version)
+// =========================
+// NOTE: Current Order uses items JSONB (supports multiple products)
+// This version is simplified with single productId/customerId
+// Consider this for simpler use cases or add alongside existing
+
+model OrderSimple {
+  id          String      @id @default(uuid())
+  orgId       String      @map("org_id")
+  customerId  String      @map("customer_id")
+  productId   String      @map("product_id")
+  quantity    Int
+  amount      Float
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  organization Organization @relation("OrderSimpleOrganization", fields: [orgId], references: [id], onDelete: Cascade)
+  product       Product       @relation("OrderSimpleProduct", fields: [productId], references: [id])
+
+  @@index([orgId])
+  @@index([customerId])
+  @@index([productId])
+  @@map("order_simple")
+}
+
+// =========================
+// PAYMENT MODEL (Simplified version)
+// =========================
+// NOTE: Current schema uses PaymentAttempt with more fields
+// This is a simpler alternative - consider if you need this structure
+
+model Payment {
+  id          String        @id @default(uuid())
+  orgId       String        @map("org_id")
+  orderId     String        @map("order_id")
+  ref         String        @unique
+  providerRef String?       @map("provider_ref")
+  amount      Float
+  status      PaymentStatus @default(INITIATED)
+  payload     Json?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation("PaymentOrder", fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([orderId])
+  @@index([ref])
+  @@map("payments")
+}
+
+// =========================
+// TRACE MODEL (Simplified version)
+// =========================
+// NOTE: Current schema uses ProcessingTrace with more detailed fields
+// This is a simpler alternative with status enum
+
+model Trace {
+  id        String      @id @default(uuid())
+  orgId     String      @map("org_id")
+  messageId String      @map("message_id")
+  step      String
+  data      Json?
+  status    TraceStatus @default(RECEIVED)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([orgId])
+  @@index([messageId])
+  @@index([status])
+  @@map("traces")
+}
+
+// =========================
+// RELATION UPDATES NEEDED
+// =========================
+// Add to Organization model:
+//   rules Rule[]
+//   orderSimples OrderSimple[]
+//   payments Payment[]
+//   traces Trace[]
+
+// Add to Order model (if using Payment):
+//   payments Payment[]
+
+// Add to Product model (if using OrderSimple):
+//   orderSimples OrderSimple[]
+

@@ -1,0 +1,192 @@
+{
+  "info": {
+    "name": "Zyra Sprint 2 API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@acme.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "WhatsApp Webhook",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/webhooks/whatsapp",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700000000\",\n  \"message\": \"Do you have size 42 black sneakers?\",\n  \"timestamp\": 1234567890\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Webhook",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/webhooks/whatsapp/verify?hub.mode=subscribe&hub.verify_token=changeme&hub.challenge=test123"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Simulate",
+      "item": [
+        {
+          "name": "Simulate Message",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/simulate/message",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"+254700000000\",\n  \"message\": \"Do you have size 42 black sneakers?\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Simulate Payment Success",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/simulate/payment/:attemptId/success",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Rules",
+      "item": [
+        {
+          "name": "Get Rules",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/rules",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Rule",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/rules",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"test_rule\",\n  \"value\": {\n    \"name\": \"Test Rule\",\n    \"enabled\": true,\n    \"priority\": 100,\n    \"trigger\": {\n      \"type\": \"intent\",\n      \"value\": \"product_inquiry\"\n    },\n    \"conditions\": [],\n    \"actions\": [\n      {\n        \"type\": \"send_message\",\n        \"params\": {\n          \"template\": \"greeting\"\n        }\n      }\n    ]\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Templates",
+      "item": [
+        {
+          "name": "Get Templates",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/templates",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/templates",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"test_template\",\n  \"content\": \"Hello {{customer_name}}, welcome to {{business_name}}!\",\n  \"tone\": \"friendly\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Orders",
+      "item": [
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/orders",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "token={{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
+

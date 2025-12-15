@@ -1,0 +1,619 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String?    @map("password_hash") // Optional for invited users
+  role         UserRole   @default(STAFF)
+  permissions  Json?      @db.JsonB // Granular permissions override
+  orgId        String?    @map("org_id")
+  invitedAt    DateTime?  @map("invited_at")
+  invitedBy    String?    @map("invited_by")
+  inviteToken  String?    @unique @map("invite_token")
+  inviteExpiresAt DateTime? @map("invite_expires_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  organization   Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  ownedOrgs      Organization[] @relation("OrganizationOwner")
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
+  conversations  Conversation[]
+  messages       Message[]
+  invitesSent    OrganizationInvite[] @relation("Inviter")
+  invitesAccepted OrganizationInvite[] @relation("AcceptedBy")
+
+  @@index([email])
+  @@index([orgId])
+  @@index([inviteToken])
+  @@map("users")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String   @map("owner_id")
+  automationEnabled Boolean @default(true) @map("automation_enabled")
+  llmBudgetDaily Int? @map("llm_budget_daily") // max LLM calls per day
+  llmTokensDaily Int? @map("llm_tokens_daily") // max tokens per day
+  kycStatus String   @default("pending") @map("kyc_status") // pending | verified | rejected
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  owner     User     @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members   User[]
+  products  Product[]
+  rules     ConversationRule[]
+  conversations Conversation[]
+  templates Template[]
+  orders    Order[]
+  businessMemory BusinessMemory?
+  aiSessionMemories AISessionMemory[]
+  aiUsages AIUsage[]
+  invites OrganizationInvite[]
+
+  @@map("organizations")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  orgId        String   @map("org_id")
+  name         String
+  price        Decimal  @db.Decimal(10, 2)
+  description  String?  @db.Text
+  sku          String?
+  stock        Int      @default(0)
+  reservedStock Int    @default(0) @map("reserved_stock")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  stockReservations StockReservation[]
+
+  @@index([orgId])
+  @@index([sku])
+  @@map("products")
+}
+
+model ConversationRule {
+  id        String   @id @default(uuid())
+  orgId     String   @map("org_id")
+  key       String
+  value     Json
+  enabled   Boolean  @default(true)
+  priority  Int      @default(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, key])
+  @@index([orgId])
+  @@index([orgId, enabled])
+  @@map("conversation_rules")
+}
+
+model Conversation {
+  id             String    @id @default(uuid())
+  orgId          String    @map("org_id")
+  userId         String?   @map("user_id")
+  platform       String    @default("whatsapp")
+  externalId     String    @map("external_id")
+  status         String    @default("active")
+  requiresHuman  Boolean   @default(false) @map("requires_human")
+  metadata       Json?     @db.JsonB
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages       Message[]
+  orders         Order[]
+
+  @@unique([orgId, platform, externalId])
+  @@index([orgId, status])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  userId         String?      @map("user_id")
+  sender         MessageSender
+  text           String       @db.Text
+  intent         String?
+  entities       Json?        @db.JsonB
+  direction      String       @default("inbound") // inbound | outbound
+  metadata       Json?        @db.JsonB
+  processedAt    DateTime?    @map("processed_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId, createdAt])
+  @@index([userId])
+  @@index([intent])
+  @@map("messages")
+}
+
+model RefreshToken {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  token        String   @unique
+  familyId     String?  @map("family_id") // For token rotation
+  previousToken String? @unique @map("previous_token") // Previous token in rotation chain
+  expiresAt    DateTime @map("expires_at")
+  revoked      Boolean  @default(false)
+  revokedAt    DateTime? @map("revoked_at")
+  revokedReason String? @db.Text @map("revoked_reason")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@index([revoked])
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  orgId     String?  @map("org_id")
+  action    String
+  resource  String?
+  resourceId String? @map("resource_id")
+  metadata  Json?    @db.JsonB
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Template {
+  id                 String   @id @default(uuid())
+  orgId              String   @map("org_id")
+  name               String
+  content            String   @db.Text
+  variables          Json?    @db.JsonB
+  tone               String?  @default("friendly")
+  status             String   @default("draft") // draft | pending_approval | approved | rejected
+  isWhatsappTemplate Boolean  @default(false) @map("is_whatsapp_template")
+  providerTemplateId String?  @map("provider_template_id")
+  sensitive          Boolean  @default(false)
+  approvedBy         String?  @map("approved_by")
+  approvedAt         DateTime? @map("approved_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, name])
+  @@index([orgId])
+  @@index([status])
+  @@map("templates")
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  orgId          String        @map("org_id")
+  conversationId String?       @map("conversation_id")
+  customerPhone  String        @map("customer_phone")
+  items          Json          @db.JsonB
+  totalCents     Int           @map("total_cents")
+  paymentStatus  OrderStatus   @default(PENDING) @map("payment_status")
+  deliveryStatus DeliveryStatus @default(PENDING) @map("delivery_status")
+  metadata       Json?         @db.JsonB
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  conversation  Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  paymentAttempts PaymentAttempt[]
+
+  @@index([orgId])
+  @@index([conversationId])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model PaymentAttempt {
+  id             String        @id @default(uuid())
+  orderId        String        @map("order_id")
+  amountCents    Int           @map("amount_cents")
+  provider       String        @default("mpesa")
+  status         PaymentStatus @default(INITIATED)
+  providerRef    String?       @map("provider_ref")
+  externalRef    String?       @map("external_ref")
+  attemptCount   Int           @default(0) @map("attempt_count")
+  callbackPayload Json?        @db.JsonB @map("callback_payload")
+  metadata       Json?         @db.JsonB
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([externalRef])
+  @@map("payment_attempts")
+}
+
+model Settlement {
+  id            String   @id @default(uuid())
+  orgId         String   @map("org_id")
+  amountCents   Int      @map("amount_cents")
+  feeCents      Int      @default(0) @map("fee_cents")
+  netAmountCents Int     @map("net_amount_cents")
+  providerRef   String?  @map("provider_ref")
+  status        String   @default("pending") // pending | processed | failed
+  settlementDate DateTime? @map("settlement_date")
+  metadata      Json?    @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([orgId])
+  @@index([status])
+  @@index([settlementDate])
+  @@map("settlements")
+}
+
+model Refund {
+  id            String   @id @default(uuid())
+  orderId       String   @map("order_id")
+  paymentAttemptId String? @map("payment_attempt_id")
+  amountCents   Int      @map("amount_cents")
+  reason        String?  @db.Text
+  status        String   @default("pending") // pending | processed | failed
+  providerRef   String?  @map("provider_ref")
+  callbackPayload Json?  @db.JsonB @map("callback_payload")
+  metadata      Json?    @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model FinancialTransaction {
+  id            String   @id @default(uuid())
+  orgId         String   @map("org_id")
+  orderId       String?  @map("order_id")
+  type          String   // order | settlement | refund | fee
+  amountCents   Int      @map("amount_cents")
+  feeCents      Int      @default(0) @map("fee_cents")
+  netAmountCents Int     @map("net_amount_cents")
+  status        String   @default("pending")
+  providerRef   String?  @map("provider_ref")
+  metadata      Json?    @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([orgId])
+  @@index([orderId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("financial_transactions")
+}
+
+model GroupScan {
+  id            String   @id @default(uuid())
+  orgId         String   @map("org_id")
+  groupId       String   @map("group_id")
+  groupName     String?  @map("group_name")
+  consentedBy   String?  @map("consented_by") // user ID
+  consentDate   DateTime? @map("consent_date")
+  enabled       Boolean  @default(false)
+  metadata      Json?    @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([orgId, groupId])
+  @@index([orgId])
+  @@map("group_scans")
+}
+
+model MpesaCallback {
+  id            String   @id @default(uuid())
+  payload       Json     @db.JsonB
+  eventType     String   @map("event_type") // stk_push | stk_result | account_balance | reversal
+  providerRef   String?  @map("provider_ref")
+  processed     Boolean  @default(false)
+  processedAt   DateTime? @map("processed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([providerRef])
+  @@index([processed])
+  @@index([createdAt])
+  @@map("mpesa_callbacks")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  orgId     String?  @map("org_id")
+  eventType String   @map("event_type")
+  payload   Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([orgId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+model ProcessingTrace {
+  id            String   @id @default(uuid())
+  messageId     String   @map("message_id")
+  step          String
+  input         Json?    @db.JsonB
+  output        Json?    @db.JsonB
+  durationMs    Int?     @map("duration_ms")
+  success       Boolean  @default(true)
+  error         String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([messageId])
+  @@index([createdAt])
+  @@map("processing_traces")
+}
+
+model OutgoingMessage {
+  id           String   @id @default(uuid())
+  orgId        String   @map("org_id")
+  conversationId String? @map("conversation_id")
+  to           String
+  text         String   @db.Text
+  template     String?
+  status       String   @default("pending")
+  providerRef  String?  @map("provider_ref")
+  error        String?  @db.Text
+  metadata     Json?    @db.JsonB
+  createdAt    DateTime @default(now()) @map("created_at")
+  sentAt       DateTime? @map("sent_at")
+
+  @@index([orgId])
+  @@index([conversationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("outgoing_messages")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum DeliveryStatus {
+  PENDING
+  NOTIFIED
+  ACCEPTED
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+}
+
+enum PaymentStatus {
+  INITIATED
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  STAFF
+}
+
+enum MessageSender {
+  customer
+  business
+  system
+}
+
+model IdempotencyKey {
+  key        String   @id
+  response   Json     @db.JsonB
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+model DistributedLock {
+  key        String   @id
+  token      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([expiresAt])
+  @@map("distributed_locks")
+}
+
+model StockReservation {
+  id           String    @id @default(uuid())
+  productId    String    @map("product_id")
+  quantity     Int
+  orderId      String?   @map("order_id")
+  conversationId String? @map("conversation_id")
+  expiresAt    DateTime  @map("expires_at")
+  status       String    @default("held") // held | confirmed | released
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, status])
+  @@index([expiresAt])
+  @@index([orderId])
+  @@map("stock_reservations")
+}
+
+model DeadLetterJob {
+  id          String   @id @default(uuid())
+  queueName   String   @map("queue_name")
+  jobId       String?  @map("job_id")
+  payload     Json     @db.JsonB
+  error       String   @db.Text
+  stackTrace  String?  @db.Text @map("stack_trace")
+  retryCount  Int      @default(0) @map("retry_count")
+  orgId       String?  @map("org_id")
+  status      String   @default("pending") // pending | reprocessing | reprocessed | discarded
+  reprocessedAt DateTime? @map("reprocessed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([queueName, status])
+  @@index([orgId])
+  @@index([createdAt])
+  @@map("dead_letter_jobs")
+}
+
+model AIUsage {
+  id          String   @id @default(uuid())
+  orgId       String   @map("org_id")
+  userId      String?  @map("user_id")
+  model       String?
+  promptHash  String   @map("prompt_hash") // hashed prompt for dedup
+  tokensUsed  Int?     @map("tokens_used")
+  costCents   Int?     @map("cost_cents") // optional
+  metadata    Json?    @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+  @@index([userId])
+  @@index([promptHash])
+  @@map("ai_usage")
+}
+
+model RateLimit {
+  id          String   @id @default(uuid())
+  key         String   // e.g., "org:123" or "phone:+254700000000"
+  limit       Int
+  windowMs    Int      @map("window_ms")
+  count       Int      @default(0)
+  resetAt     DateTime @map("reset_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([key])
+  @@index([resetAt])
+  @@map("rate_limits")
+}
+
+model OptOut {
+  id          String   @id @default(uuid())
+  orgId       String   @map("org_id")
+  phoneNumber String   @map("phone_number")
+  reason      String?  // stop | unsubscribe | spam
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([orgId, phoneNumber])
+  @@index([orgId])
+  @@map("opt_outs")
+}
+
+// Sprint 3: AI Automation Foundations
+model BusinessMemory {
+  id              String   @id @default(cuid())
+  orgId           String   @unique @map("org_id")
+  faqs            Json?    // array of FAQs {q, a}
+  instructions    Json?    // owner-written instructions and tone
+  negotiationRules Json?   @map("negotiation_rules") // negotiation thresholds & boundaries
+  deliveryRules   Json?    @map("delivery_rules")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organization    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@map("business_memory")
+}
+
+model AIProcessingTrace {
+  id            String   @id @default(cuid())
+  messageId     String?  @map("message_id") // relates to Message id if available
+  orgId         String?  @map("org_id")
+  conversationId String? @map("conversation_id")
+  traceType     String   @map("trace_type") // INTENT_DETECTED, MUE_PARSED, AI_REPLY, ACTION_EXECUTED, ORDER_STATE_UPDATED, PAYMENT_TRIGGERED, PAYMENT_CONFIRMED, SOCIAL_LEAD_CAPTURED
+  payload       Json?
+  success       Boolean  @default(true)
+  errorMsg      String?  @db.Text @map("error_msg")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([messageId])
+  @@index([orgId])
+  @@index([conversationId])
+  @@index([traceType])
+  @@index([createdAt])
+  @@map("ai_processing_traces")
+}
+
+model AISessionMemory {
+  id          String   @id @default(cuid())
+  orgId       String   @map("org_id")
+  sessionKey  String   @map("session_key") // e.g., conversationId or org:<orgId>
+  memory      Json     // short-term memory used for session
+  ttlSeconds  Int?     @map("ttl_seconds") // optional TTL to expire memory
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([sessionKey])
+  @@index([createdAt])
+  @@map("ai_session_memory")
+}
+
+model OrganizationInvite {
+  id          String     @id @default(uuid())
+  orgId       String     @map("org_id")
+  inviterId   String     @map("inviter_id")
+  email       String
+  role        UserRole
+  token       String     @unique
+  status      String     @default("pending") // pending | accepted | rejected | revoked
+  expiresAt   DateTime   @map("expires_at")
+  acceptedBy  String?    @map("accepted_by")
+  acceptedAt  DateTime?  @map("accepted_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  inviter      User         @relation("Inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  accepter     User?        @relation("AcceptedBy", fields: [acceptedBy], references: [id], onDelete: SetNull)
+
+  @@unique([orgId, email])
+  @@index([token])
+  @@index([orgId])
+  @@map("organization_invites")
+}
+

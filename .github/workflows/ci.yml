@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: zyra_db
+          POSTGRES_USER: zyra_user
+          POSTGRES_PASSWORD: zyra_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          cd apps/backend && npm install
+          cd ../frontend && npm install
+
+      - name: Lint backend
+        run: cd apps/backend && npm run lint
+        continue-on-error: true
+
+      - name: Lint frontend
+        run: cd apps/frontend && npm run lint
+        continue-on-error: true
+
+      - name: Generate Prisma Client
+        run: cd apps/backend && npx prisma generate
+        env:
+          DATABASE_URL: postgresql://zyra_user:zyra_password@localhost:5432/zyra_db
+
+      - name: Run database migrations
+        run: cd apps/backend && npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://zyra_user:zyra_password@localhost:5432/zyra_db
+
+      - name: Run backend tests
+        run: cd apps/backend && npm test
+        env:
+          DATABASE_URL: postgresql://zyra_user:zyra_password@localhost:5432/zyra_db
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-minimum-32-characters-long-for-testing
+        continue-on-error: true
+
+      - name: Build backend
+        run: cd apps/backend && npm run build
+
+      - name: Build frontend
+        run: cd apps/frontend && npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
