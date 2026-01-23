@@ -9,6 +9,7 @@ import { simulatePaymentSuccess } from '../services/payment.service';
 import { getAnalyticsEvents } from '../services/analytics.service';
 import { authGuard } from '../middleware/authGuard';
 import { requireOrgAccess, requireRole } from '../middleware/roleGuard';
+import { processMessage } from '../services/messageProcessor';
 
 const prisma = new PrismaClient();
 
@@ -42,15 +43,14 @@ export async function simulateMessage(request: FastifyRequest, reply: FastifyRep
       simulatedBy: user.userId,
     });
 
-    // Enqueue processing
-    await messageQueue.add('process-message', {
-      messageId: savedMessage.id,
-    });
+    // Process the message
+    const result = await processMessage(orgId, message, from);
 
     return reply.send({
       success: true,
       messageId: savedMessage.id,
       conversationId: conversation.id,
+      processing: result,
     });
   } catch (error: any) {
     return reply.code(500).send({
@@ -269,15 +269,23 @@ export async function createRule(request: FastifyRequest, reply: FastifyReply) {
 export async function updateRule(request: FastifyRequest, reply: FastifyReply) {
   try {
     const orgId = (request as any).orgId;
-    const { id } = request.params as any;
+    const { id: key } = request.params as any; // Using key as parameter
     const body = request.body as any;
 
-    const rule = await prisma.conversationRule.update({
-      where: { id },
-      data: {
+    const rule = await prisma.conversationRule.upsert({
+      where: {
+        orgId_key: {
+          orgId,
+          key,
+        },
+      },
+      update: {
         value: body.value,
-        ...(body.enabled !== undefined && { enabled: body.enabled }),
-        ...(body.priority !== undefined && { priority: body.priority }),
+      },
+      create: {
+        orgId,
+        key,
+        value: body.value,
       },
     });
 
@@ -289,8 +297,13 @@ export async function updateRule(request: FastifyRequest, reply: FastifyReply) {
 
 export async function deleteRule(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const { id } = request.params as any;
-    await prisma.conversationRule.delete({ where: { id } });
+    const orgId = (request as any).orgId;
+    const { id: key } = request.params as any; // Using key as parameter
+    
+    await prisma.conversationRule.deleteMany({
+      where: { orgId, key },
+    });
+    
     return reply.send({ success: true, message: 'Rule deleted' });
   } catch (error: any) {
     return reply.code(500).send({ success: false, message: error.message });

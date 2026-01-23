@@ -6,7 +6,7 @@ import apiClient from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Trash2, Settings, Edit, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Trash2, Settings, Edit, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react';
 
 interface Rule {
   id: string;
@@ -24,15 +24,7 @@ interface Rule {
 
 const ruleSchema = z.object({
   key: z.string().min(1, 'Key is required'),
-  name: z.string().min(1, 'Name is required'),
-  enabled: z.boolean().default(true),
-  priority: z.coerce.number().int().default(100),
-  trigger: z.object({
-    type: z.enum(['intent', 'keyword', 'event']),
-    value: z.union([z.string(), z.array(z.string())]),
-  }),
-  conditions: z.array(z.any()).optional(),
-  actions: z.array(z.any()).min(1, 'At least one action required'),
+  value: z.string().min(1, 'Rule value is required'),
 });
 
 type RuleForm = z.infer<typeof ruleSchema>;
@@ -50,15 +42,11 @@ export default function RulesPage() {
     formState: { errors },
     reset,
     setValue,
-    watch,
   } = useForm<RuleForm>({
     resolver: zodResolver(ruleSchema),
     defaultValues: {
-      enabled: true,
-      priority: 100,
-      trigger: { type: 'intent', value: '' },
-      conditions: [],
-      actions: [],
+      key: '',
+      value: '',
     },
   });
 
@@ -69,7 +57,7 @@ export default function RulesPage() {
   const loadRules = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<{ success: boolean; data: Rule[] }>('/rules');
+      const response = await apiClient.get<{ success: boolean; data: Rule[] }>('/api/admin/rules');
       setRules(response.data.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load rules');
@@ -81,23 +69,23 @@ export default function RulesPage() {
   const onSubmit = async (data: RuleForm) => {
     try {
       setError(null);
-      const ruleValue = {
-        name: data.name,
-        enabled: data.enabled,
-        priority: data.priority,
-        trigger: data.trigger,
-        conditions: data.conditions || [],
-        actions: data.actions,
-      };
+      let parsedValue;
+      try {
+        parsedValue = JSON.parse(data.value);
+      } catch {
+        setError('Invalid JSON format in rule value');
+        return;
+      }
 
       if (editingRule) {
-        await apiClient.put(`/admin/rules/${editingRule.id}`, {
-          value: ruleValue,
+        await apiClient.put(`/api/admin/rules/${editingRule.key}`, {
+          key: data.key,
+          value: parsedValue,
         });
       } else {
-        await apiClient.post('/admin/rules', {
+        await apiClient.post('/api/admin/rules', {
           key: data.key,
-          value: ruleValue,
+          value: parsedValue,
         });
       }
 
@@ -113,18 +101,14 @@ export default function RulesPage() {
   const handleEdit = (rule: Rule) => {
     setEditingRule(rule);
     setValue('key', rule.key);
-    setValue('name', rule.value.name || rule.key);
-    setValue('enabled', rule.value.enabled ?? true);
-    setValue('priority', rule.value.priority || 100);
-    setValue('trigger', rule.value.trigger || { type: 'intent', value: '' });
-    setValue('conditions', rule.value.conditions || []);
-    setValue('actions', rule.value.actions || []);
+    setValue('value', JSON.stringify(rule.value, null, 2));
     setShowAddForm(true);
   };
 
   const handleToggle = async (rule: Rule) => {
     try {
-      await apiClient.put(`/admin/rules/${rule.id}`, {
+      await apiClient.put(`/api/admin/rules/${rule.key}`, {
+        key: rule.key,
         value: {
           ...rule.value,
           enabled: !rule.value.enabled,
@@ -136,12 +120,12 @@ export default function RulesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (key: string) => {
     if (!confirm('Are you sure you want to delete this rule?')) return;
 
     try {
-      await apiClient.delete(`/admin/rules/${id}`);
-      setRules(rules.filter((r) => r.id !== id));
+      await apiClient.delete(`/api/admin/rules/${key}`);
+      await loadRules();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete rule');
     }
@@ -156,10 +140,21 @@ export default function RulesPage() {
             Configure rules for automated conversation handling
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Rule
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={loadRules}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Loading...' : 'Refresh'}
+          </Button>
+          <Button onClick={() => setShowAddForm(!showAddForm)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Rule
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -173,84 +168,68 @@ export default function RulesPage() {
           <h2 className="mb-4 text-xl font-semibold">
             {editingRule ? 'Edit Rule' : 'Add New Rule'}
           </h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="key" className="block text-sm font-medium text-gray-700">
-                  Rule Key *
-                </label>
-                <input
-                  {...register('key')}
-                  type="text"
-                  disabled={!!editingRule}
-                  placeholder="e.g., product_inquiry_rule"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm disabled:bg-gray-100 focus:border-primary focus:outline-none focus:ring-primary"
-                />
-                {errors.key && (
-                  <p className="mt-1 text-sm text-red-600">{errors.key.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Rule Name *
-                </label>
-                <input
-                  {...register('name')}
-                  type="text"
-                  placeholder="Product Inquiry Response"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                )}
+          
+          {!editingRule && (
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2">Quick Templates:</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { name: 'Greeting Rule', key: 'greeting_rule', template: { name: 'Auto Greeting', trigger: { type: 'intent', value: 'greeting' }, actions: [{ type: 'send_message', template: 'greeting' }] }},
+                  { name: 'Price Inquiry', key: 'price_inquiry_rule', template: { name: 'Price Response', trigger: { type: 'intent', value: 'price_inquiry' }, actions: [{ type: 'send_message', template: 'price_info' }] }},
+                  { name: 'Order Confirmation', key: 'order_confirm_rule', template: { name: 'Order Processing', trigger: { type: 'intent', value: 'confirmation' }, actions: [{ type: 'create_order' }, { type: 'send_message', template: 'order_created' }] }},
+                  { name: 'Delivery Query', key: 'delivery_rule', template: { name: 'Delivery Info', trigger: { type: 'intent', value: 'delivery_query' }, actions: [{ type: 'send_message', template: 'delivery_info' }] }},
+                ].map((template) => (
+                  <button
+                    key={template.key}
+                    onClick={() => {
+                      setValue('key', template.key);
+                      setValue('value', JSON.stringify(template.template, null, 2));
+                    }}
+                    className="text-left p-2 text-xs border rounded hover:bg-gray-50"
+                  >
+                    {template.name}
+                  </button>
+                ))}
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
-                  Priority
-                </label>
-                <input
-                  {...register('priority')}
-                  type="number"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-6">
-                <input
-                  {...register('enabled')}
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <label className="text-sm font-medium text-gray-700">Enabled</label>
-              </div>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label htmlFor="key" className="block text-sm font-medium text-gray-700">
+                Rule Key *
+              </label>
+              <input
+                {...register('key')}
+                type="text"
+                disabled={!!editingRule}
+                placeholder="e.g., product_inquiry_rule"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm disabled:bg-gray-100 focus:border-primary focus:outline-none focus:ring-primary"
+              />
+              {errors.key && (
+                <p className="mt-1 text-sm text-red-600">{errors.key.message}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Rule Value (JSON) *</label>
               <textarea
-                {...register('value', {
-                  setValueAs: (v) => {
-                    try {
-                      return typeof v === 'string' ? JSON.parse(v) : v;
-                    } catch {
-                      return v;
-                    }
-                  },
-                })}
+                {...register('value')}
                 rows={12}
                 placeholder={JSON.stringify({
+                  name: 'Product Inquiry Response',
+                  enabled: true,
+                  priority: 100,
                   trigger: { type: 'intent', value: 'product_inquiry' },
                   conditions: [],
                   actions: [{ type: 'send_message', params: { template: 'greeting' } }],
                 }, null, 2)}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-primary"
               />
+              {errors.value && (
+                <p className="mt-1 text-sm text-red-600">{errors.value.message}</p>
+              )}
               <p className="mt-1 text-xs text-gray-500">
-                Enter valid JSON with trigger, conditions, and actions
+                Enter valid JSON with name, enabled, priority, trigger, conditions, and actions
               </p>
             </div>
 
@@ -337,7 +316,7 @@ export default function RulesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(rule.id)}
+                    onClick={() => handleDelete(rule.key)}
                     className="text-red-600 hover:text-red-700"
                     title="Delete"
                   >

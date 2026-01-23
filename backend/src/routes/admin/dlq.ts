@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export async function dlqRoutes(app: FastifyInstance) {
   // List DLQ items
   app.get(
-    '/admin/dlq',
+    '/dlq',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -38,7 +38,7 @@ export async function dlqRoutes(app: FastifyInstance) {
 
   // Reprocess DLQ item
   app.post(
-    '/admin/dlq/:id/reprocess',
+    '/dlq/:id/reprocess',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -105,7 +105,7 @@ export async function dlqRoutes(app: FastifyInstance) {
 
   // Discard DLQ item
   app.delete(
-    '/admin/dlq/:id',
+    '/dlq/:id',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },

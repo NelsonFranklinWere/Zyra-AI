@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import apiClient from '@/lib/api-client';
-import { Plus, Trash2, Edit, FileText } from 'lucide-react';
+import { Plus, Trash2, Edit, FileText, RefreshCw } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -72,7 +72,7 @@ export default function TemplatesPage() {
   const loadTemplates = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<{ success: boolean; data: Template[] }>('/admin/templates');
+      const response = await apiClient.get<{ success: boolean; data: Template[] }>('/api/admin/templates');
       setTemplates(response.data.data || []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load templates');
@@ -85,9 +85,9 @@ export default function TemplatesPage() {
     try {
       setError(null);
       if (editingTemplate) {
-        await apiClient.put(`/admin/templates/${editingTemplate.name}`, data);
+        await apiClient.put(`/api/admin/templates/${editingTemplate.name}`, data);
       } else {
-        await apiClient.post('/admin/templates', data);
+        await apiClient.post('/api/admin/templates', data);
       }
       await loadTemplates();
       reset();
@@ -112,7 +112,7 @@ export default function TemplatesPage() {
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     try {
-      await apiClient.delete(`/admin/templates/${name}`);
+      await apiClient.delete(`/api/admin/templates/${name}`);
       setTemplates(templates.filter((t) => t.name !== name));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete template');
@@ -128,14 +128,25 @@ export default function TemplatesPage() {
             Manage automated response templates. Use {'{{variable}}'} for dynamic values.
           </p>
         </div>
-        <Button onClick={() => {
-          setEditingTemplate(null);
-          setShowForm(true);
-          reset();
-        }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Template
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={loadTemplates}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Loading...' : 'Refresh'}
+          </Button>
+          <Button onClick={() => {
+            setEditingTemplate(null);
+            setShowForm(true);
+            reset();
+          }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Template
+          </Button>
+        </div>
       </div>
 
       {error && (

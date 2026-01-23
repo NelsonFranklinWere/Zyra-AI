@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export async function moderationRoutes(app: FastifyInstance) {
   // Get pending templates
   app.get(
-    '/admin/moderation/templates',
+    '/moderation/templates',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -33,7 +33,7 @@ export async function moderationRoutes(app: FastifyInstance) {
 
   // Approve/reject template
   app.post(
-    '/admin/moderation/templates/:id/approve',
+    '/moderation/templates/:id/approve',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -65,7 +65,7 @@ export async function moderationRoutes(app: FastifyInstance) {
 
   // Validate template content
   app.post(
-    '/admin/templates/validate',
+    '/templates/validate',
     {
       preHandler: [authGuard, requireOrgAccess],
     },
@@ -89,7 +89,7 @@ export async function moderationRoutes(app: FastifyInstance) {
 
   // Get escalated conversations
   app.get(
-    '/admin/moderation/escalations',
+    '/moderation/escalations',
     {
       preHandler: [authGuard, requireOrgAccess],
     },
@@ -125,7 +125,7 @@ export async function moderationRoutes(app: FastifyInstance) {
 
   // Claim conversation
   app.post(
-    '/admin/moderation/conversations/:id/claim',
+    '/moderation/conversations/:id/claim',
     {
       preHandler: [authGuard, requireOrgAccess],
     },
@@ -156,7 +156,7 @@ export async function moderationRoutes(app: FastifyInstance) {
 
   // Unclaim conversation
   app.post(
-    '/admin/moderation/conversations/:id/unclaim',
+    '/moderation/conversations/:id/unclaim',
     {
       preHandler: [authGuard, requireOrgAccess],
     },

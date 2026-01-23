@@ -17,7 +17,7 @@ export const createOrgSchema = z.object({
 
 export const addMemberSchema = z.object({
   email: z.string().email('Invalid email address'),
-  role: z.enum(['OWNER', 'ADMIN', 'STAFF']).default('STAFF'),
+  role: z.enum(['OWNER', 'ADMIN', 'STAFF', 'RIDER']).default('STAFF'),
 });
 
 export const createProductSchema = z.object({

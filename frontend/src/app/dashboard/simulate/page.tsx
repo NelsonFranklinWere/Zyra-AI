@@ -41,13 +41,16 @@ export default function SimulatePage() {
     setResult(null);
 
     try {
-      const response = await apiClient.post('/admin/simulate/message', {
+      const response = await apiClient.post('/api/admin/simulate/message', {
         from: data.from,
         message: data.message,
         orgId: organization?.id,
       });
 
-      setResult(response.data);
+      setResult({
+        ...response.data,
+        timestamp: new Date().toLocaleTimeString(),
+      });
       
       // Reset form after successful submission
       setTimeout(() => {
@@ -84,7 +87,32 @@ export default function SimulatePage() {
           {result && (
             <div className="mb-4 flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800">
               <CheckCircle2 className="h-4 w-4" />
-              Message queued for processing! Message ID: {result.messageId}
+              Message processed! 
+              {result.processing && (
+                <div className="ml-2 text-xs">
+                  Intent: <strong>{result.processing.intent}</strong> | 
+                  Rule: <strong>{result.processing.matchedRule || 'None'}</strong>
+                </div>
+              )}
+            </div>
+          )}
+
+          {result?.processing && (
+            <div className="mb-4 rounded-md bg-blue-50 border border-blue-200 p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">AI Response:</h3>
+              <div className="bg-white rounded p-3 border">
+                <p className="text-sm">{result.processing.response}</p>
+              </div>
+              {result.processing.actions?.length > 0 && (
+                <div className="mt-3">
+                  <h4 className="font-medium text-blue-700 mb-1">Actions Triggered:</h4>
+                  <ul className="text-xs text-blue-600">
+                    {result.processing.actions.map((action: any, idx: number) => (
+                      <li key={idx}>• {action.type}: {JSON.stringify(action.params || {})}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 

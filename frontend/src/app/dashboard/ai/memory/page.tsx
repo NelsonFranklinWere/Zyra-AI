@@ -29,7 +29,7 @@ export default function AIMemoryPage() {
 
   const loadMemory = async () => {
     try {
-      const response = await apiClient.get('/ai/memory');
+      const response = await apiClient.get('/api/ai/memory');
       if (response.data.success) {
         const mem = response.data.data || {};
         setMemory(mem);
@@ -55,7 +55,7 @@ export default function AIMemoryPage() {
         return;
       }
 
-      await apiClient.put('/ai/memory', {
+      await apiClient.put('/api/ai/memory', {
         faqs: faqs.filter((f) => f.q.trim() && f.a.trim()),
         instructions: parsedInstructions,
         negotiationRules: memory?.negotiationRules,
@@ -75,7 +75,7 @@ export default function AIMemoryPage() {
     if (!testMessage.trim()) return;
 
     try {
-      const response = await apiClient.post('/ai/simulate', {
+      const response = await apiClient.post('/api/ai/simulate', {
         message: testMessage,
       });
 

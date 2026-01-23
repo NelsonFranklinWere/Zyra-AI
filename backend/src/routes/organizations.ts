@@ -1,12 +1,22 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { createOrgSchema, addMemberSchema } from '@zyra/shared';
+import { z } from 'zod';
 import { authGuard } from '../middleware/authGuard';
 import { requireRole, requireOrgAccess } from '../middleware/roleGuard';
 import { auditLogger } from '../middleware/auditLogger';
 import { createAuditLog } from '../services/auditLog';
 
 const prisma = new PrismaClient();
+
+const createOrgSchema = z.object({
+  name: z.string().min(1, 'Organization name is required'),
+});
+
+const addMemberSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  role: z.enum(['ADMIN', 'STAFF', 'RIDER']).default('STAFF'),
+});
 
 export async function organizationRoutes(app: FastifyInstance) {
   // Create organization
@@ -128,37 +138,32 @@ export async function organizationRoutes(app: FastifyInstance) {
         auditLogger('MEMBER_ADDED', 'user'),
       ],
     },
-    async (request: FastifyRequest<{ Body: { email: string; role?: string } }>, reply: FastifyReply) => {
+    async (request: FastifyRequest<{ Body: { name: string; email: string; role?: string } }>, reply: FastifyReply) => {
       try {
         const body = addMemberSchema.parse(request.body);
         const user = request.user as any;
         const orgId = (request as any).orgId;
 
-        // Find user by email
-        const targetUser = await prisma.user.findUnique({
+        // Check if user with this email already exists
+        const existingUser = await prisma.user.findUnique({
           where: { email: body.email },
         });
 
-        if (!targetUser) {
-          return reply.code(404).send({
-            success: false,
-            message: 'User not found',
-          });
-        }
-
-        if (targetUser.orgId) {
+        if (existingUser) {
           return reply.code(400).send({
             success: false,
-            message: 'User already belongs to an organization',
+            message: 'User with this email already exists',
           });
         }
 
-        // Update user
-        await prisma.user.update({
-          where: { id: targetUser.id },
+        // Create new user as team member
+        const newUser = await prisma.user.create({
           data: {
-            orgId,
+            name: body.name,
+            email: body.email,
             role: body.role as any,
+            orgId: orgId,
+            // No password - they'll need to be invited to set one later
           },
         });
 
@@ -167,13 +172,19 @@ export async function organizationRoutes(app: FastifyInstance) {
           orgId,
           action: 'MEMBER_ADDED',
           resource: 'user',
-          resourceId: targetUser.id,
-          metadata: { email: body.email, role: body.role },
+          resourceId: newUser.id,
+          metadata: { email: body.email, role: body.role, name: body.name },
         });
 
         return reply.send({
           success: true,
-          message: 'Member added successfully',
+          message: 'Team member added successfully',
+          data: {
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+          },
         });
       } catch (error: any) {
         app.log.error(error);

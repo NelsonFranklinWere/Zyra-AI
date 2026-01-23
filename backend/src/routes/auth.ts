@@ -32,7 +32,7 @@ export async function authRoutes(app: FastifyInstance) {
         // Hash password
         const passwordHash = await bcrypt.hash(body.password, 10);
 
-        // Create user
+        // Create user first (without orgId)
         const user = await prisma.user.create({
           data: {
             name: body.name,
@@ -40,6 +40,21 @@ export async function authRoutes(app: FastifyInstance) {
             passwordHash,
             role: 'OWNER',
           },
+        });
+
+        // Create organization for the user
+        const organization = await prisma.organization.create({
+          data: {
+            name: `${body.name}'s Business`, // Default org name
+            ownerId: user.id,
+            automationEnabled: true,
+          },
+        });
+
+        // Update user with orgId
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { orgId: organization.id },
           select: {
             id: true,
             name: true,
@@ -52,13 +67,13 @@ export async function authRoutes(app: FastifyInstance) {
 
         // Generate JWT
         const token = app.jwt.sign({
-          userId: user.id,
-          role: user.role,
-          orgId: user.orgId,
+          userId: updatedUser.id,
+          role: updatedUser.role,
+          orgId: updatedUser.orgId,
         });
 
         // Create refresh token
-        const refreshToken = await createRefreshToken(user.id);
+        const refreshToken = await createRefreshToken(updatedUser.id);
 
         // Set httpOnly cookies
         reply.setCookie('token', token, {
@@ -78,16 +93,18 @@ export async function authRoutes(app: FastifyInstance) {
         });
 
         await createAuditLog({
-          userId: user.id,
+          userId: updatedUser.id,
+          orgId: updatedUser.orgId,
           action: 'USER_REGISTERED',
           resource: 'user',
-          resourceId: user.id,
+          resourceId: updatedUser.id,
         });
 
         return reply.code(201).send({
           success: true,
           data: {
-            user,
+            user: updatedUser,
+            organization,
             token,
             refreshToken,
           },
@@ -225,15 +242,6 @@ export async function authRoutes(app: FastifyInstance) {
               },
             },
           },
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          orgId: true,
-          createdAt: true,
-          organization: true,
         },
       });
 

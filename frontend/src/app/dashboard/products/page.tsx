@@ -7,7 +7,7 @@ import { getProducts, createProduct, deleteProduct, type CreateProductInput } fr
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Trash2, Package } from 'lucide-react';
+import { Plus, Trash2, Package, RefreshCw } from 'lucide-react';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -45,10 +45,31 @@ export default function ProductsPage() {
   const loadProducts = async () => {
     try {
       setLoading(true);
+      setError(null);
+      console.log('🔄 Loading products...');
       const data = await getProducts();
+      console.log('✅ Products loaded:', data);
       setProducts(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load products');
+      console.error('❌ Products API error:', err);
+      console.error('Response status:', err.response?.status);
+      console.error('Response data:', err.response?.data);
+      
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to load products';
+      setError(errorMessage);
+      
+      // If organization is required, show specific message
+      if (err.response?.status === 400 && errorMessage.includes('Organization')) {
+        setError('You need to create an organization first. Please contact support.');
+      }
+      
+      // If unauthorized, redirect to login
+      if (err.response?.status === 401) {
+        setError('Session expired. Please login again.');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
     } finally {
       setLoading(false);
     }
@@ -84,10 +105,21 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold">Products</h1>
           <p className="mt-2 text-gray-600">Manage your product catalog</p>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Product
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={loadProducts}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Loading...' : 'Refresh'}
+          </Button>
+          <Button onClick={() => setShowAddForm(!showAddForm)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       {error && (

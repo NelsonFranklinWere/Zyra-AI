@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { login } from '@/lib/auth';
 import { useAuthStore } from '@/store/auth-store';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const loginSchema = z.object({
@@ -113,10 +112,19 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
+            
+            <div className="text-center">
+              <span className="text-sm text-gray-600">Don't have an account? </span>
+              <Link href="/register">
+                <Button variant="outline" className="w-full mt-2">
+                  Create New Account
+                </Button>
+              </Link>
+            </div>
           </div>
         </form>
       </div>

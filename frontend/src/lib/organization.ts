@@ -25,21 +25,22 @@ export interface CreateOrgInput {
 }
 
 export interface AddMemberInput {
+  name: string;
   email: string;
-  role?: 'OWNER' | 'ADMIN' | 'STAFF';
+  role?: 'ADMIN' | 'STAFF';
 }
 
 export async function createOrganization(data: CreateOrgInput): Promise<Organization> {
-  const response = await apiClient.post<{ success: boolean; data: Organization }>('/org/create', data);
+  const response = await apiClient.post<{ success: boolean; data: Organization }>('/api/org/create', data);
   return response.data.data;
 }
 
 export async function getOrganization(): Promise<Organization> {
-  const response = await apiClient.get<{ success: boolean; data: Organization }>('/org/info');
+  const response = await apiClient.get<{ success: boolean; data: Organization }>('/api/org/info');
   return response.data.data;
 }
 
 export async function addMember(data: AddMemberInput): Promise<void> {
-  await apiClient.post('/org/add-member', data);
+  await apiClient.post('/api/org/add-member', data);
 }
 

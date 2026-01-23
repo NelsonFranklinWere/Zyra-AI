@@ -36,7 +36,7 @@ export default function AITracesPage() {
       if (conversationId) params.conversationId = conversationId;
       if (traceTypeFilter !== 'all') params.traceType = traceTypeFilter;
 
-      const response = await apiClient.get('/ai/traces', { params });
+      const response = await apiClient.get('/api/ai/traces', { params });
       if (response.data.success) {
         setTraces(response.data.data || []);
       }

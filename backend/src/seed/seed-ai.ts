@@ -46,16 +46,14 @@ export async function seedAI() {
   for (const product of products) {
     await prisma.product.upsert({
       where: {
-        orgId_name: {
-          orgId: org.id,
-          name: product.name,
-        },
+        id: `ai-${org.id}-${product.name.replace(/\s+/g, '-').toLowerCase()}`,
       },
       update: {},
       create: {
+        id: `ai-${org.id}-${product.name.replace(/\s+/g, '-').toLowerCase()}`,
         orgId: org.id,
         name: product.name,
-        price: product.price,
+        price: product.price.toString(),
         description: product.description,
         stock: product.stock,
         isActive: true,
@@ -134,13 +132,11 @@ export async function seedAI() {
   for (const template of templates) {
     await prisma.template.upsert({
       where: {
-        orgId_name: {
-          orgId: org.id,
-          name: template.name,
-        },
+        id: `ai-${org.id}-${template.name}`,
       },
       update: {},
       create: {
+        id: `ai-${org.id}-${template.name}`,
         orgId: org.id,
         name: template.name,
         content: template.content,

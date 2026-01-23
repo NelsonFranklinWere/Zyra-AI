@@ -62,6 +62,13 @@ export const followupQueue = new Queue('followup', {
   },
 });
 
+export const reconciliationQueue = new Queue('payment-reconciliation', {
+  connection: {
+    ...connection,
+    maxRetriesPerRequest: null,
+  },
+});
+
 let messageWorker: Worker | null = null;
 let followupWorker: Worker | null = null;
 

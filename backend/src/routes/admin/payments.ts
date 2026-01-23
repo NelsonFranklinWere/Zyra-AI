@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 export async function paymentAdminRoutes(app: FastifyInstance) {
   // Test STK (sandbox)
   app.post(
-    '/admin/mpesa/test-stk',
+    '/mpesa/test-stk',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -36,7 +36,7 @@ export async function paymentAdminRoutes(app: FastifyInstance) {
 
   // Reconcile payments
   app.get(
-    '/admin/payments/reconcile',
+    '/payments/reconcile',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -62,7 +62,7 @@ export async function paymentAdminRoutes(app: FastifyInstance) {
 
   // Manual payment marking
   app.post(
-    '/admin/payments/:attemptId/manual-success',
+    '/payments/:attemptId/manual-success',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -128,7 +128,7 @@ export async function paymentAdminRoutes(app: FastifyInstance) {
 
   // Create refund
   app.post(
-    '/admin/refunds',
+    '/refunds',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },

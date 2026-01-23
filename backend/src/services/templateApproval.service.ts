@@ -90,7 +90,9 @@ export async function validateTemplateContent(content: string): Promise<{
   const errors: string[] = [];
 
   // Check for unescaped variables (should be {{variable}})
-  const unescapedVars = content.match(/\{[^{]/g) || [];
+  // First replace all valid {{variable}} patterns, then check for remaining single braces
+  const withoutValidVars = content.replace(/\{\{[^}]+\}\}/g, '');
+  const unescapedVars = withoutValidVars.match(/[{}]/g) || [];
   if (unescapedVars.length > 0) {
     errors.push('Template contains unescaped variables. Use {{variable}} format.');
   }

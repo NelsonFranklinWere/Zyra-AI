@@ -6,18 +6,7 @@ const prisma = new PrismaClient();
 export async function seedSprint2() {
   console.log('🌱 Seeding Sprint 2 data...');
 
-  // Create organization
-  const org = await prisma.organization.upsert({
-    where: { id: 'seed-org-1' },
-    update: {},
-    create: {
-      id: 'seed-org-1',
-      name: 'Acme Shoes',
-      ownerId: 'seed-owner-1',
-    },
-  });
-
-  // Create owner user
+  // Create owner user first (without orgId)
   const ownerPasswordHash = await bcrypt.hash('password123', 10);
   const owner = await prisma.user.upsert({
     where: { id: 'seed-owner-1' },
@@ -28,8 +17,24 @@ export async function seedSprint2() {
       email: 'owner@acme.com',
       passwordHash: ownerPasswordHash,
       role: 'OWNER',
-      orgId: org.id,
     },
+  });
+
+  // Create organization
+  const org = await prisma.organization.upsert({
+    where: { id: 'seed-org-1' },
+    update: {},
+    create: {
+      id: 'seed-org-1',
+      name: 'Acme Shoes',
+      ownerId: owner.id,
+    },
+  });
+
+  // Update owner with orgId
+  await prisma.user.update({
+    where: { id: owner.id },
+    data: { orgId: org.id },
   });
 
   // Create staff members
@@ -69,7 +74,6 @@ export async function seedSprint2() {
       description: 'Comfortable black sneakers',
       sku: 'SNEAK-BLK-40',
       stock: 10,
-      tags: ['sneakers', 'black', 'size-40'],
     },
     {
       name: 'Black Sneakers Size 42',
@@ -77,7 +81,6 @@ export async function seedSprint2() {
       description: 'Comfortable black sneakers',
       sku: 'SNEAK-BLK-42',
       stock: 15,
-      tags: ['sneakers', 'black', 'size-42'],
     },
     {
       name: 'White Running Shoes Size 41',
@@ -85,7 +88,6 @@ export async function seedSprint2() {
       description: 'Lightweight white running shoes',
       sku: 'RUN-WHT-41',
       stock: 8,
-      tags: ['running', 'white', 'size-41'],
     },
     {
       name: 'Brown Leather Boots Size 42',
@@ -93,7 +95,6 @@ export async function seedSprint2() {
       description: 'Premium brown leather boots',
       sku: 'BOOT-BRN-42',
       stock: 5,
-      tags: ['boots', 'brown', 'leather', 'size-42'],
     },
     {
       name: 'Red Casual Shoes Size 40',
@@ -101,7 +102,6 @@ export async function seedSprint2() {
       description: 'Stylish red casual shoes',
       sku: 'CAS-RED-40',
       stock: 12,
-      tags: ['casual', 'red', 'size-40'],
     },
     {
       name: 'Blue Sports Shoes Size 43',
@@ -109,20 +109,17 @@ export async function seedSprint2() {
       description: 'Durable blue sports shoes',
       sku: 'SPRT-BLU-43',
       stock: 7,
-      tags: ['sports', 'blue', 'size-43'],
     },
   ];
 
   for (const productData of products) {
     await prisma.product.upsert({
       where: {
-        orgId_sku: {
-          orgId: org.id,
-          sku: productData.sku,
-        },
+        id: `${org.id}-${productData.sku}`,
       },
       update: {},
       create: {
+        id: `${org.id}-${productData.sku}`,
         orgId: org.id,
         ...productData,
         price: productData.price.toString(),
@@ -161,13 +158,11 @@ export async function seedSprint2() {
   for (const templateData of templates) {
     await prisma.template.upsert({
       where: {
-        orgId_name: {
-          orgId: org.id,
-          name: templateData.name,
-        },
+        id: `${org.id}-${templateData.name}`,
       },
       update: {},
       create: {
+        id: `${org.id}-${templateData.name}`,
         orgId: org.id,
         ...templateData,
         variables: templateData.variables,
@@ -268,13 +263,11 @@ export async function seedSprint2() {
   for (const ruleData of rules) {
     await prisma.conversationRule.upsert({
       where: {
-        orgId_key: {
-          orgId: org.id,
-          key: ruleData.key,
-        },
+        id: `${org.id}-${ruleData.key}`,
       },
       update: {},
       create: {
+        id: `${org.id}-${ruleData.key}`,
         orgId: org.id,
         ...ruleData,
         value: ruleData.value as any,

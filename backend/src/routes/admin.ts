@@ -244,7 +244,7 @@ export async function adminRoutes(app: FastifyInstance) {
 
   // Payment admin routes
   try {
-    const { paymentAdminRoutes } = await import('./admin/payment');
+    const { paymentAdminRoutes } = await import('./admin/payments');
     await app.register(paymentAdminRoutes);
   } catch (e) {
     // Payment admin routes may not be available
@@ -260,7 +260,7 @@ export async function adminRoutes(app: FastifyInstance) {
 
   // Organization admin routes
   try {
-    const { organizationAdminRoutes } = await import('./admin/organization');
+    const { organizationAdminRoutes } = await import('./admin/organizations');
     await app.register(organizationAdminRoutes);
   } catch (e) {
     // Organization admin routes may not be available

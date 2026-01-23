@@ -13,21 +13,21 @@ export interface CreateProductInput {
 export interface UpdateProductInput extends Partial<CreateProductInput> {}
 
 export async function getProducts(): Promise<Product[]> {
-  const response = await apiClient.get<{ success: boolean; data: Product[] }>('/products');
+  const response = await apiClient.get<{ success: boolean; data: Product[] }>('/api/products');
   return response.data.data;
 }
 
 export async function createProduct(data: CreateProductInput): Promise<Product> {
-  const response = await apiClient.post<{ success: boolean; data: Product }>('/products', data);
+  const response = await apiClient.post<{ success: boolean; data: Product }>('/api/products', data);
   return response.data.data;
 }
 
 export async function updateProduct(id: string, data: UpdateProductInput): Promise<Product> {
-  const response = await apiClient.patch<{ success: boolean; data: Product }>(`/products/${id}`, data);
+  const response = await apiClient.patch<{ success: boolean; data: Product }>(`/api/products/${id}`, data);
   return response.data.data;
 }
 
 export async function deleteProduct(id: string): Promise<void> {
-  await apiClient.delete(`/products/${id}`);
+  await apiClient.delete(`/api/products/${id}`);
 }
 

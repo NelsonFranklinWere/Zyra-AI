@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export async function organizationAdminRoutes(app: FastifyInstance) {
   // Get organization usage/billing
   app.get(
-    '/admin/organizations/:id/usage',
+    '/organizations/:id/usage',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },
@@ -29,12 +29,23 @@ export async function organizationAdminRoutes(app: FastifyInstance) {
           });
         }
 
-        // Get LLM usage
-        const llmUsage = await getOrgLLMUsage(
-          id,
-          startDate ? new Date(startDate) : undefined,
-          endDate ? new Date(endDate) : undefined
-        );
+        // Get LLM usage (with fallback)
+        let llmUsage;
+        try {
+          llmUsage = await getOrgLLMUsage(
+            id,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined
+          );
+        } catch (error) {
+          // Fallback if aiUsage table doesn't exist
+          llmUsage = {
+            totalCalls: 0,
+            totalTokens: 0,
+            totalCostCents: 0,
+            dailyUsage: [],
+          };
+        }
 
         // Get message counts
         const messageCounts = await prisma.message.groupBy({
@@ -94,7 +105,7 @@ export async function organizationAdminRoutes(app: FastifyInstance) {
 
   // Pause/resume organization automation
   app.put(
-    '/admin/organizations/:id/automation',
+    '/organizations/:id/automation',
     {
       preHandler: [authGuard, requireRole('OWNER', 'ADMIN')],
     },

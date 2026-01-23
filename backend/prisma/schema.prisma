@@ -61,6 +61,7 @@ model Organization {
   businessMemory BusinessMemory?
   aiSessionMemories AISessionMemory[]
   aiUsages AIUsage[]
+  businessProfile BusinessProfile?
   invites OrganizationInvite[]
 
   @@map("organizations")
@@ -429,6 +430,7 @@ enum UserRole {
   OWNER
   ADMIN
   STAFF
+  RIDER
 }
 
 enum MessageSender {
@@ -615,5 +617,73 @@ model OrganizationInvite {
   @@index([token])
   @@index([orgId])
   @@map("organization_invites")
+}
+
+// Phase 1 Missing Features
+model BusinessProfile {
+  id            String   @id @default(uuid())
+  orgId         String   @unique @map("org_id")
+  description   String?  @db.Text
+  tone          String   @default("friendly")
+  workingHours  Json?    @db.JsonB @map("working_hours")
+  deliveryZones String[] @map("delivery_zones")
+  policies      Json?    @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@map("business_profiles")
+}
+
+model SocialAccount {
+  id          String   @id @default(uuid())
+  orgId       String   @map("org_id")
+  platform    String
+  username    String
+  connected   Boolean  @default(false)
+  leadCapture Boolean  @default(false) @map("lead_capture")
+  autoReply   Boolean  @default(false) @map("auto_reply")
+  metadata    Json?    @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([orgId, platform, username])
+  @@index([orgId])
+  @@map("social_accounts")
+}
+
+model SocialLead {
+  id        String   @id @default(uuid())
+  orgId     String   @map("org_id")
+  platform  String
+  username  String
+  comment   String   @db.Text
+  intent    String?
+  score     Int      @default(0)
+  status    String   @default("new")
+  metadata  Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([orgId])
+  @@index([status])
+  @@map("social_leads")
+}
+
+model WhatsAppGroup {
+  id           String   @id @default(uuid())
+  orgId        String   @map("org_id")
+  name         String
+  groupId      String   @map("group_id")
+  scanning     Boolean  @default(false)
+  consentGiven Boolean  @default(false) @map("consent_given")
+  insights     Json?    @db.JsonB
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([orgId, groupId])
+  @@index([orgId])
+  @@map("whatsapp_groups")
 }
 
